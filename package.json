@@ -1,0 +1,34 @@
+{
+  "name": "@flexui/dialog",
+  "version": "0.0.1",
+  "description": "The flex ui dialog plugin.",
+  "author": {
+    "name": "nuintun",
+    "email": "nuintun@qq.com"
+  },
+  "homepage": "https://flexui.github.io/dialog",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/flexui/dialog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flexui/dialog/issues",
+    "email": "nuintun@qq.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "dialog"
+  ],
+  "jsnext:main": "dialog.js",
+  "dependencies": {
+    "@flexui/utils": "https://github.com/flexui/utils/archive/master.tar.gz",
+    "@flexui/layer": "https://github.com/flexui/layer/archive/master.tar.gz",
+    "@flexui/effects-events": "https://github.com/flexui/effects-events/archive/master.tar.gz"
+  },
+  "devDependencies": {
+    "rollup": "^0.36.4",
+    "uglify-js": "^2.7.5",
+    "rollup-plugin-node-resolve": "^2.0.0"
+  },
+  "readmeFilename": "README.md"
+}
