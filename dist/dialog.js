@@ -169,7 +169,7 @@
     }
 
     // 混合属性
-    mix(subClass.prototype, properties);
+    properties && mix(subClass.prototype, properties);
 
     // 设置构造函数
     subClass.prototype.constructor = subClass;
@@ -180,27 +180,27 @@
   /**
    * 高性能 apply
    *
-   * @param  {Function} fn
+   * @param  {Function} func
    * @param  {Any} context
    * @param  {Array} args
    * call is faster than apply, optimize less than 6 args
    * https://github.com/micro-js/apply
    * http://blog.csdn.net/zhengyinhui100/article/details/7837127
    */
-  function apply(fn$$1, context, args) {
+  function apply(func, context, args) {
     switch (args.length) {
       // faster
       case 0:
-        return fn$$1.call(context);
+        return func.call(context);
       case 1:
-        return fn$$1.call(context, args[0]);
+        return func.call(context, args[0]);
       case 2:
-        return fn$$1.call(context, args[0], args[1]);
+        return func.call(context, args[0], args[1]);
       case 3:
-        return fn$$1.call(context, args[0], args[1], args[2]);
+        return func.call(context, args[0], args[1], args[2]);
       default:
         // slower
-        return fn$$1.apply(context, args);
+        return func.apply(context, args);
     }
   }
 
