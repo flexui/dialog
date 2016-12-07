@@ -8,7 +8,6 @@
 
   var OP = Object.prototype;
   var AP = Array.prototype;
-
   var FP = Function.prototype;
 
   // toString
