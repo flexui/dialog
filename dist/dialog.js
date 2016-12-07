@@ -650,7 +650,6 @@
     msAnimation: 'MSAnimationEnd',
     KhtmlAnimation: 'khtmlAnimationEnd'
   };
-
   // transition 映射表
   var TRANSITIONEND_EVENTS = {
     transition: 'transitionend',
@@ -676,7 +675,6 @@
 
   // animation
   var ANIMATION = detector(ANIMATIONEND_EVENTS);
-
   // transition
   var TRANSITION = detector(TRANSITIONEND_EVENTS);
 
