@@ -799,7 +799,7 @@
   }
 
   // 对齐方式拆分正则
-  var ALIGNSPLIT = /\s+/;
+  var ALIGNSPLITRE = /\s+/;
 
   function Popup() {
     Layer.call(this);
@@ -1139,7 +1139,7 @@
       var maxLeft = minLeft + clientWidth - dialogWidth;
 
       var css = {};
-      var align = context.align.split(ALIGNSPLIT);
+      var align = context.align.split(ALIGNSPLITRE);
       var className = context.className + '-';
       var reverse = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
       var name = { top: 'top', bottom: 'top', left: 'left', right: 'left' };
