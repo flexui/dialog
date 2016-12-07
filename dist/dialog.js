@@ -730,16 +730,16 @@
     var animationDurations = toArray(styles.getPropertyValue(ANIMATION + '-duration'));
     var animationTimeout = getTimeout(animationDelays, animationDurations);
 
-    var type$$1;
+    var effect;
     var count;
     var timeout;
 
     timeout = Math.max(transitionTimeout, animationTimeout);
-    type$$1 = timeout > 0 ? (transitionTimeout > animationTimeout ? TRANSITION : ANIMATION) : null;
-    count = type$$1 ? (type$$1 === TRANSITION ? transitionDurations.length : animationDurations.length) : 0;
+    effect = timeout > 0 ? (transitionTimeout > animationTimeout ? TRANSITION : ANIMATION) : null;
+    count = effect ? (effect === TRANSITION ? transitionDurations.length : animationDurations.length) : 0;
 
     return {
-      type: type$$1,
+      effect: effect,
       count: count,
       timeout: timeout
     };
@@ -760,17 +760,17 @@
 
     var element = node[0];
     var info = getEffectsInfo(element);
-    var type$$1 = info.type;
+    var effect = info.effect;
 
     // 没有动画
-    if (!type$$1) {
+    if (!effect) {
       return callback();
     }
 
     var ended = 0;
     var count = info.count;
     var timeout = info.timeout;
-    var event = type$$1 === TRANSITION ?
+    var event = effect === TRANSITION ?
       TRANSITIONEND_EVENTS[TRANSITION] :
       ANIMATIONEND_EVENTS[ANIMATION];
 
