@@ -138,8 +138,26 @@
     return target;
   }
 
-  // setPrototypeOf
-  var setPrototypeOf = isNative(Object.setPrototypeOf) ? Object.setPrototypeOf : false;
+  // 为了节省内存，使用一个共享的构造器
+  function TClass() {
+    // 空白中转类，可以减少内存占用
+  }
+
+  // Object setPrototypeOf
+  var setPrototypeOf = Object.setPrototypeOf;
+
+  // not suport setPrototypeOf
+  if (!isNative(setPrototypeOf)) {
+    setPrototypeOf = false;
+  }
+
+  // Object create
+  var objectCreate = Object.create;
+
+  // not suport create
+  if (!isNative(objectCreate)) {
+    objectCreate = false;
+  }
 
   /**
    * 继承
@@ -155,16 +173,15 @@
 
     if (setPrototypeOf) {
       setPrototypeOf(subClass.prototype, superPrototype);
+    } else if (objectCreate) {
+      subClass.prototype = objectCreate(superPrototype);
     } else {
-      // 中转空白类，可以减少内存占用
-      function T() {
-        // Empty constructor
-      }
-
       // 原型属性继承
-      T.prototype = superPrototype;
+      TClass.prototype = superPrototype;
       // 初始化实例
-      subClass.prototype = new T();
+      subClass.prototype = new TClass();
+      // 不要保持一个 superClass 的杂散引用
+      TClass.prototype = null;
     }
 
     // 混合属性
