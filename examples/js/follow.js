@@ -1,13 +1,13 @@
 var dialog;
 var __window = $(window);
-var follow = $('#follow-elem');
+var anchor = $('#anchor');
 var alignView = $('#test-align-value');
 
 __window.on('resize.dialog', function() {
   dialog && dialog.reset();
 });
 
-follow
+anchor
   .on('change', '[type=radio]', function() {
     if (dialog) {
       dialog.close();
@@ -31,7 +31,7 @@ follow
 
     dialog.align = align;
 
-    dialog.show(follow[0]);
+    dialog.show(anchor[0]);
     alignView.html(align);
   })
   .find(':radio:checked')

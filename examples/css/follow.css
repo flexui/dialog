@@ -1,4 +1,4 @@
-	#follow-elem {
+	#anchor {
 	  width: 120px;
 	  height: 120px;
 	  position: absolute;
@@ -11,73 +11,73 @@
 	  border-radius: 2px;
 	}
 
-	#follow-elem input {
+	#anchor input {
 	  width: 14px;
 	  height: 14px;
 	  position: absolute;
 	  cursor: pointer;
 	}
 
-	#follow-elem .nw {
+	#anchor .nw {
 	  left: 14px;
 	  top: 0;
 	}
 
-	#follow-elem .n {
+	#anchor .n {
 	  left: 50%;
 	  margin-left: -7px;
 	  top: 0;
 	}
 
-	#follow-elem .ne {
+	#anchor .ne {
 	  right: 14px;
 	  top: 0;
 	}
 
-	#follow-elem .en {
+	#anchor .en {
 	  right: 0;
 	  top: 14px;
 	}
 
-	#follow-elem .e {
+	#anchor .e {
 	  right: 0;
 	  top: 50%;
 	  margin-top: -7px;
 	}
 
-	#follow-elem .es {
+	#anchor .es {
 	  right: 0;
 	  bottom: 14px;
 	}
 
-	#follow-elem .se {
+	#anchor .se {
 	  right: 14px;
 	  bottom: 0;
 	}
 
-	#follow-elem .s {
+	#anchor .s {
 	  left: 50%;
 	  margin-left: -7px;
 	  bottom: 0;
 	}
 
-	#follow-elem .sw {
+	#anchor .sw {
 	  left: 14px;
 	  bottom: 0;
 	}
 
-	#follow-elem .ws {
+	#anchor .ws {
 	  left: 0;
 	  bottom: 14px;
 	}
 
-	#follow-elem .w {
+	#anchor .w {
 	  left: 0;
 	  top: 50%;
 	  margin-top: -7px;
 	}
 
-	#follow-elem .wn {
+	#anchor .wn {
 	  left: 0;
 	  top: 14px;
 	}
