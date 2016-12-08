@@ -90,6 +90,9 @@
   animation-fill-mode: both;
   -webkit-animation-duration: .2s;
   animation-duration: .2s;
+  -webkit-transition: all .2s ease-out;
+  -moz-transition: all .2s ease-out;
+  transition: all .2s ease-out;
 }
 
 .ui-dialog-show {
