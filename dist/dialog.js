@@ -934,13 +934,11 @@
       popup
         .attr('role', context.modal ? 'alertdialog' : 'dialog')
         .removeClass(context.className + '-close')
-        .addClass(context.className + '-show');
+        .addClass(context.className + '-show')
+        .show();
 
-      // 定位，先定位再显示
-      // 否则可能在小窗口模式跟随元素定位错误
+      // 执行定位操作
       context.reset();
-      // 显示弹窗
-      popup.show();
 
       // 触发事件
       context.emit('show');
