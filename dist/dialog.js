@@ -1347,14 +1347,16 @@
       skin: 'ui-dialog',
       align: 'bottom left',
       buttons: [{
+        which: 13,
         label: '确认',
-        action: function() {
-
+        action: function(e) {
+          console.log('确认');
         }
       }, {
+        which: 27,
         label: '取消',
         action: function() {
-
+          console.log('取消');
         }
       }]
     }, options);
@@ -1368,12 +1370,32 @@
     return DIALOGS;
   };
 
+  /**
+   * 键盘响应函数
+   *
+   * @param {Number} which
+   * @param {Dialog} context
+   */
+  function keyboard(which, context) {
+    if (Array.isArray(context.options.buttons)) {
+      context.options.buttons.forEach(function(button) {
+        if (button.which === which && fn(button.action)) {
+          button.action.call(context);
+        }
+      });
+    }
+
+    if (which === 27) {
+      context.close();
+    }
+  }
+
   // 按键响应
   win.on('keyup', function(e) {
     var active = Layer.active;
 
-    if (e.which === 27 && active && active instanceof Dialog && active.options.keyboard) {
-      active.close();
+    if (active instanceof Dialog && active.options.keyboard) {
+      keyboard(e.which, active);
     }
   });
 
