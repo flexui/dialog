@@ -2,9 +2,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
   typeof define === 'function' && define.amd ? define('dialog', ['jquery'], factory) :
   (global.Dialog = factory(global.jQuery));
-}(this, (function ($) { 'use strict';
+}(this, (function ($$1) { 'use strict';
 
-  $ = 'default' in $ ? $['default'] : $;
+  $$1 = 'default' in $$1 ? $$1['default'] : $$1;
 
   var OP = Object.prototype;
   var AP = Array.prototype;
@@ -43,7 +43,9 @@
    * @param {any} value
    * @returns
    */
-
+  function string(value) {
+    return type(value) === '[object String]';
+  }
 
   /**
    * 数字判定
@@ -96,8 +98,8 @@
 
   // 类型判定接口
   // jquery 对象
-  var win = $(window);
-  var doc = $(document);
+  var win = $$1(window);
+  var doc = $$1(document);
 
   /**
    * 属性拷贝
@@ -377,7 +379,7 @@
     // 遮罩分配
     alloc: [],
     // 遮罩节点
-    node: $('<div tabindex="0"></div>').css({
+    node: $$1('<div tabindex="0"></div>').css({
       position: 'fixed',
       top: 0,
       left: 0,
@@ -386,7 +388,7 @@
       userSelect: 'none'
     }),
     // 锁定 tab 焦点层
-    shim: $('<div tabindex="0"></div>').css({
+    shim: $$1('<div tabindex="0"></div>').css({
       width: 0,
       height: 0,
       opacity: 0
@@ -461,7 +463,7 @@
 
     context.destroyed = false;
     context.node = document.createElement('div');
-    context.__node = $(context.node)
+    context.__node = $$1(context.node)
       // 设置 tabindex
       .attr('tabindex', '-1')
       // 绑定得到焦点事件
@@ -589,6 +591,9 @@
 
         // 获取焦点
         context.__focus(autofocus);
+
+        // 重新获取激活实例
+        active = Layer.active;
       }
 
       // 非激活状态才做处理
@@ -1180,7 +1185,7 @@
       var popup = context.__node;
 
       // 不能是根节点
-      anchor = anchor.parentNode && $(anchor);
+      anchor = anchor.parentNode && $$1(anchor);
 
       // 定位元素不存在
       if (!anchor || !anchor.length) {
@@ -1292,7 +1297,7 @@
      */
     __offset: function(anchor) {
       var isNode = anchor.parentNode;
-      var offset = isNode ? $(anchor).offset() : {
+      var offset = isNode ? $$1(anchor).offset() : {
         left: anchor.pageX,
         top: anchor.pageY
       };
@@ -1310,11 +1315,11 @@
       // {Element: Ifarme}
       var frameElement = defaultView.frameElement;
 
-      ownerDocument = $(ownerDocument);
+      ownerDocument = $$1(ownerDocument);
 
       var scrollLeft = ownerDocument.scrollLeft();
       var scrollTop = ownerDocument.scrollTop();
-      var frameOffset = $(frameElement).offset();
+      var frameOffset = $$1(frameElement).offset();
       var frameLeft = frameOffset.left;
       var frameTop = frameOffset.top;
 
@@ -1325,6 +1330,63 @@
     }
   });
 
-  return Popup;
+  var DIALOGS = {};
+
+  function Dialog(content, options) {
+    var context = this;
+
+    Popup.call(context);
+
+    context.options = options = $(true, {
+      id: null,
+      fixed: false,
+      anchor: null,
+      title: '弹出消息',
+      skin: 'ui-dialog',
+      align: 'bottom left',
+      buttons: [{
+        label: '确认',
+        action: function() {
+
+        }
+      }, {
+        label: '取消',
+        action: function() {
+
+        }
+      }]
+    }, options);
+
+    if (string(options.id) && DIALOGS[options.id]) {
+      return context;
+    }
+  }
+
+  Dialog.items = function() {
+    return DIALOGS;
+  };
+
+  // 按键响应
+  win.on('keyup', function(e) {
+    var active = Layer.active;
+
+    if (e.which === 27 && active && active instanceof Dialog) {
+      active.close();
+    }
+  });
+
+  inherits(Dialog, Popup, {
+    /**
+     * 构造函数
+     * @public
+     * @readonly
+     */
+    constructor: Dialog,
+    set: function(name, value) {
+
+    }
+  });
+
+  return Dialog;
 
 })));
