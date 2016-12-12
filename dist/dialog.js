@@ -2,9 +2,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
   typeof define === 'function' && define.amd ? define('dialog', ['jquery'], factory) :
   (global.Dialog = factory(global.jQuery));
-}(this, (function ($$1) { 'use strict';
+}(this, (function ($) { 'use strict';
 
-  $$1 = 'default' in $$1 ? $$1['default'] : $$1;
+  $ = 'default' in $ ? $['default'] : $;
 
   var OP = Object.prototype;
   var AP = Array.prototype;
@@ -98,8 +98,8 @@
 
   // 类型判定接口
   // jquery 对象
-  var win = $$1(window);
-  var doc = $$1(document);
+  var win = $(window);
+  var doc = $(document);
 
   /**
    * 属性拷贝
@@ -379,7 +379,7 @@
     // 遮罩分配
     alloc: [],
     // 遮罩节点
-    node: $$1('<div tabindex="0"></div>').css({
+    node: $('<div tabindex="0"></div>').css({
       position: 'fixed',
       top: 0,
       left: 0,
@@ -388,7 +388,7 @@
       userSelect: 'none'
     }),
     // 锁定 tab 焦点层
-    shim: $$1('<div tabindex="0"></div>').css({
+    shim: $('<div tabindex="0"></div>').css({
       width: 0,
       height: 0,
       opacity: 0
@@ -463,7 +463,7 @@
 
     context.destroyed = false;
     context.node = document.createElement('div');
-    context.__node = $$1(context.node)
+    context.__node = $(context.node)
       // 设置 tabindex
       .attr('tabindex', '-1')
       // 绑定得到焦点事件
@@ -1185,7 +1185,7 @@
       var popup = context.__node;
 
       // 不能是根节点
-      anchor = anchor.parentNode && $$1(anchor);
+      anchor = anchor.parentNode && $(anchor);
 
       // 定位元素不存在
       if (!anchor || !anchor.length) {
@@ -1297,7 +1297,7 @@
      */
     __offset: function(anchor) {
       var isNode = anchor.parentNode;
-      var offset = isNode ? $$1(anchor).offset() : {
+      var offset = isNode ? $(anchor).offset() : {
         left: anchor.pageX,
         top: anchor.pageY
       };
@@ -1315,11 +1315,11 @@
       // {Element: Ifarme}
       var frameElement = defaultView.frameElement;
 
-      ownerDocument = $$1(ownerDocument);
+      ownerDocument = $(ownerDocument);
 
       var scrollLeft = ownerDocument.scrollLeft();
       var scrollTop = ownerDocument.scrollTop();
-      var frameOffset = $$1(frameElement).offset();
+      var frameOffset = $(frameElement).offset();
       var frameLeft = frameOffset.left;
       var frameTop = frameOffset.top;
 
@@ -1337,10 +1337,12 @@
 
     Popup.call(context);
 
-    context.options = options = $(true, {
+    // 合并默认参数
+    context.options = options = mix({
       id: null,
       fixed: false,
       anchor: null,
+      keyboard: true,
       title: '弹出消息',
       skin: 'ui-dialog',
       align: 'bottom left',
@@ -1370,7 +1372,7 @@
   win.on('keyup', function(e) {
     var active = Layer.active;
 
-    if (e.which === 27 && active && active instanceof Dialog) {
+    if (e.which === 27 && active && active instanceof Dialog && active.options.keyboard) {
       active.close();
     }
   });

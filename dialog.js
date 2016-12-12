@@ -9,10 +9,12 @@ export default function Dialog(content, options) {
 
   Popup.call(context);
 
-  context.options = options = $(true, {
+  // 合并默认参数
+  context.options = options = Utils.mix({
     id: null,
     fixed: false,
     anchor: null,
+    keyboard: true,
     title: '弹出消息',
     skin: 'ui-dialog',
     align: 'bottom left',
@@ -42,7 +44,7 @@ Dialog.items = function() {
 Utils.win.on('keyup', function(e) {
   var active = Layer.active;
 
-  if (e.which === 27 && active && active instanceof Dialog) {
+  if (e.which === 27 && active && active instanceof Dialog && active.options.keyboard) {
     active.close();
   }
 });
