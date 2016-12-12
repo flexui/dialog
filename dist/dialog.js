@@ -464,12 +464,6 @@
     context.__node = $(context.node)
       // 设置 tabindex
       .attr('tabindex', '-1')
-      // 设置样式
-      .css({
-        display: 'none',
-        position: 'absolute',
-        outline: 0
-      })
       // 绑定得到焦点事件
       .on('focusin', function() {
         context.focus();
@@ -854,7 +848,18 @@
   var ALIGNSPLITRE = /\s+/;
 
   function Popup() {
-    Layer.call(this);
+    var context = this;
+
+    Layer.call(context);
+
+    // 设置初始样式
+    context.__node.css({
+      display: 'none',
+      position: 'absolute',
+      outline: 0,
+      top: 0,
+      left: 0
+    });
   }
 
   inherits(Popup, Layer, {
@@ -864,6 +869,23 @@
      * @property
      */
     returnValue: undefined,
+    /**
+     * 跟随的 DOM 元素节点
+     * @public
+     * @readonly
+     */
+    anchor: null,
+    /**
+     * 是否开启固定定位
+     * @public
+     * @property
+     */
+    fixed: false,
+    /**
+     * 判断对话框是否删除
+     * @public
+     * @readonly
+     */
     /**
      * 对齐方式
      * @public
