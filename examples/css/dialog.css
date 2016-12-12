@@ -92,7 +92,7 @@
   animation-duration: .2s;
   -webkit-transition: all .2s ease-out;
   -moz-transition: all .2s ease-out;
-  transition: all .2s ease-out;
+  transition: all 3s ease-out;
 }
 
 .ui-dialog-show {

@@ -442,7 +442,7 @@
         BACKDROP.node.remove();
         BACKDROP.shim.remove();
       } else {
-        anchor = alloc[length - 1];
+        anchor = BACKDROP.alloc[length - 1];
 
         BACKDROP.zIndex(anchor.zIndex);
         BACKDROP.attach(anchor);
@@ -462,11 +462,17 @@
     context.destroyed = false;
     context.node = document.createElement('div');
     context.__node = $(context.node)
+      // 设置 tabindex
       .attr('tabindex', '-1')
+      // 设置样式
       .css({
         display: 'none',
         position: 'absolute',
         outline: 0
+      })
+      // 绑定得到焦点事件
+      .on('focusin', function() {
+        context.focus();
       });
   }
 
@@ -624,13 +630,12 @@
       }
 
       var isBlur = arguments[0];
-      var activeElement = context.__activeElement;
 
       // 清理激活状态
       context.__cleanActive();
 
       if (isBlur !== false) {
-        context.__focus(activeElement);
+        context.__focus(context.__activeElement);
       }
 
       context.__autofocus = false;
@@ -1065,8 +1070,10 @@
         Layer.backdrop.hide(context);
       }
 
-      // 从 DOM 中移除节点
-      context.__node.remove();
+      // 移除事件绑定并从 DOM 中移除节点
+      context.__node
+        .off('focusin')
+        .remove();
 
       // 切换销毁状态
       context.destroyed = true;
