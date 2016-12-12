@@ -1100,10 +1100,13 @@
         return context;
       }
 
+      // 对齐类名
+      var align = context.__align;
+
       // 移除跟随定位类名
-      if (context.__align) {
+      if (align) {
         // 移除对齐类名
-        context.__node.removeClass(context.__align);
+        context.__node.removeClass(align);
 
         // 清空对齐类名
         context.__align = null;
