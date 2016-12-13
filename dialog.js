@@ -9,7 +9,7 @@ var HANDLEROLE = 'handle';
 var ACTIONROLE = 'action';
 var DIALOGFRAME =
   '<div class="{{className}}-title">' +
-  '  <div class="{{className}}-caption">{{title}}</div>' +
+  '  <div class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
   '  <div class="{{className}}-handle">' +
   '    <a href="javascript:;" title="关闭" role="' + HANDLEROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
   '  </div>' +

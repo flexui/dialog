@@ -30,8 +30,6 @@ function create() {
   __window.on('resize', reset);
 
   dialog.on('close', function() {
-    // console.log('close');
-
     if (remove.checked) {
       dialog.remove();
     }

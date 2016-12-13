@@ -86,6 +86,7 @@
 
 .ui-dialog {
   min-width: 360px;
+  max-width: 1080px;
   background: #000;
   -webkit-overflow-scrolling: touch;
   margin: 0;
@@ -131,6 +132,10 @@
   color: #333;
   font-size: 14px;
   padding: 0 35px 0 9px;
+  height: 100%;
+  overflow: hidden;
+  word-break: keep-all;
+  text-overflow: ellipsis;
 }
 
 .ui-dialog-handle {
