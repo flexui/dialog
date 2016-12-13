@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import Layer from '@flexui/layer';
 import Popup from './lib/popup.js';
 import * as Utils from '@flexui/utils';
