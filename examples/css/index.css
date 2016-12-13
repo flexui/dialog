@@ -30,7 +30,7 @@ body {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  outline: 0;
+  outline: none;
 }
 
 .ui-button:hover {

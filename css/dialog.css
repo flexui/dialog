@@ -149,10 +149,10 @@
   cursor: pointer;
   font-family: tahoma, sans-serif;
   font-size: 24px;
-  text-decoration: none;
-  outline: none;
-  display: inline-block;
   line-height: 34px;
+  outline: none;
+  text-decoration: none;
+  display: inline-block;
   -webkit-transition: color .1s ease-out, transform .1s ease-out;
   -moz-transition: color .1s ease-out, transform .1s ease-out;
   transition: color .1s ease-out, transform .1s ease-out;
