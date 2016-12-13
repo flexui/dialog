@@ -123,7 +123,8 @@
 .ui-dialog-title {
   height: 36px;
   line-height: 36px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #B2B2B2;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
 
 .ui-dialog-caption {
