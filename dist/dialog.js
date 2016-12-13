@@ -54,7 +54,9 @@
    * @param {any} value
    * @returns
    */
-
+  function number(value) {
+    return type(value) === '[object Number]';
+  }
 
   /**
    * NaN判定
@@ -1357,15 +1359,19 @@
 
   // 实例缓存
   var DIALOGS = {};
+  var HANDLEROLE = 'handle';
+  var ACTIONROLE = 'action';
   var DIALOGFRAME =
     '<div class="{{className}}-title">' +
+    '  <div class="{{className}}-caption">{{title}}</div>' +
     '  <div class="{{className}}-handle">' +
-    '    <a href="javascript:;" title="关闭" role="handle" data-action="close" class="{{className}}-handle-close">×</a>' +
+    '    <a href="javascript:;" title="关闭" role="' + HANDLEROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
     '  </div>' +
     '</div>' +
     '<div class="{{className}}-content">{{content}}</div>' +
     '<div class="{{className}}-action">{{buttons}}</div>';
-  var DIALOGBUTTON = '<button class="{{className}}" role="action" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+  var DELEGATESELECTOR = '.{{className}}-handle [role], .{{className}}-action [role]';
+  var DIALOGBUTTON = '<button class="{{className}}" type="button" role="' + ACTIONROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
 
   /**
    * Dialog
@@ -1385,83 +1391,59 @@
     // 合并默认参数
     context.options = options = mix({
       id: null,
-      fixed: false,
+      buttons: [],
       anchor: null,
+      fixed: false,
       keyboard: true,
       title: '弹出消息',
       skin: 'ui-dialog',
-      align: 'bottom left',
-      buttons: [{
-        which: 13,
-        label: '确认',
-        className: 'ui-button ui-button-yes',
-        action: function(e) {
-          console.log('确认');
-        }
-      }, {
-        which: 27,
-        label: '取消',
-        className: 'ui-button ui-button-no',
-        action: function() {
-          console.log('取消');
-        }
-      }]
+      align: 'bottom left'
     }, options);
 
-    if (string(options.id) && DIALOGS[options.id]) {
-      return context;
+    // 有 id 存在的情况下防止重复弹出
+    if (string(options.id)) {
+      if (DIALOGS[options.id]) {
+        return context.__render(content, options);
+      } else {
+        DIALOGS[options.id] = context;
+      }
     }
 
-    var buttons = '';
-
-    if (Array.isArray(options.buttons)) {
-      options.buttons.forEach(function(button, index) {
-        buttons += template(DIALOGBUTTON, {
-          className: button.className,
-          label: button.label,
-          index: index
-        });
-      });
-    }
-
-    content = string(content) ? content : '';
-
-    context.innerHTML = template(DIALOGFRAME, {
-      className: context.className,
-      content: content,
-      buttons: buttons
-    });
-
-    var selector = template('.{{className}}-handle [role], .{{className}}-action [role]', {
+    // 选择器
+    var selector = template(DELEGATESELECTOR, {
       className: context.className
     });
 
-    context.__node.on('click', selector, function(e) {
+    // 绑定事件
+    context.__node.on('click', selector, function() {
       var target = $(this);
       var role = target.attr('role');
       var action = target.attr('data-action');
 
       switch (role) {
-        case 'handle':
+        case HANDLEROLE:
           if (action === 'close') {
             keyboard(27, context);
           }
           break;
-        case 'action':
+        case ACTIONROLE:
           var button = options.buttons ? options.buttons[action] : null;
 
           if (button) {
-            if (button.which) {
-              keyboard(button.which, context);
-            } else {
-              if (fn(button.action)) {
-                button.action.call(context);
-              }
+            if (fn(button.action)) {
+              button.action.call(context);
+            }
+
+            if (number(button.which)) {
+              keyboard(button.which, context, button);
             }
             break;
           }
       }
     });
+
+    // 渲染
+    context.__render(content, options);
   }
 
   Dialog.items = function() {
@@ -1473,11 +1455,12 @@
    *
    * @param {Number} which
    * @param {Dialog} context
+   * @param {Object} ignore
    */
-  function keyboard(which, context) {
+  function keyboard(which, context, ignore) {
     if (Array.isArray(context.options.buttons)) {
       context.options.buttons.forEach(function(button) {
-        if (button.which === which && fn(button.action)) {
+        if (button.which === which && button !== ignore && fn(button.action)) {
           button.action.call(context);
         }
       });
@@ -1493,9 +1476,20 @@
     var active = Layer.active;
 
     if (active instanceof Dialog && active.options.keyboard) {
-      keyboard(e.which, active);
+      var which = e.which;
+      var target = $(e.target);
+      var role = target.attr('role');
+
+      // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
+      if (which !== 13 ||
+        role !== ACTIONROLE ||
+        !active.node.contains(e.target)) {
+        keyboard(which, active);
+      }
     }
   });
+
+  var POPUPREMOVE = Popup.prototype.remove;
 
   inherits(Dialog, Popup, {
     /**
@@ -1504,8 +1498,48 @@
      * @readonly
      */
     constructor: Dialog,
+    __render: function(content, options) {
+      var buttons = '';
+      var context = this;
+
+      // 生成按钮
+      if (Array.isArray(options.buttons)) {
+        options.buttons.forEach(function(button, index) {
+          buttons += template(DIALOGBUTTON, {
+            className: button.className,
+            label: button.label,
+            index: index
+          });
+        });
+      }
+
+      // 格式化内容
+      content = string(content) ? content : '';
+
+      // 设置内容
+      context.innerHTML = template(DIALOGFRAME, {
+        className: context.className,
+        title: options.title,
+        content: content,
+        buttons: buttons
+      });
+
+      return context;
+    },
     set: function(name, value) {
 
+    },
+    remove: function() {
+      var context = this;
+      var id = context.options.id;
+
+      // 调用父类方法
+      POPUPREMOVE.call(context);
+
+      // 删除缓存
+      if (context.destroyed && string(id)) {
+        delete DIALOGS[id];
+      }
     }
   });
 

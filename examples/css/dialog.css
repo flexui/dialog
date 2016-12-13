@@ -107,6 +107,7 @@
   -webkit-transition: width .2s ease-out, height .2s ease-out;
   -moz-transition: width .2s ease-out, height .2s ease-out;
   transition: width .2s ease-out, height .2s ease-out;
+  font: 12px/1.5 Microsoft Yahei, SimHei, tahoma, arial, Hiragino Sans GB, SimSun, sans-serif;
 }
 
 .ui-dialog-show {
@@ -114,14 +115,20 @@
   animation-name: bounceIn;
 }
 
+.ui-dialog-close {
+  -webkit-animation-name: bounceOut;
+  animation-name: bounceOut;
+}
+
 .ui-dialog-title {
   height: 32px;
   line-height: 32px;
 }
 
-.ui-dialog-close {
-  -webkit-animation-name: bounceOut;
-  animation-name: bounceOut;
+.ui-dialog-caption {
+  color: #333;
+  font-size: 14px;
+  padding: 0 35px 0 9px;
 }
 
 .ui-dialog-handle {

@@ -5,7 +5,23 @@ var modal = document.getElementById('modal');
 var remove = document.getElementById('remove');
 
 function create() {
-  var dialog = new Dialog('hello, world');
+  var dialog = new Dialog('hello, world', {
+    buttons: [{
+      which: 13,
+      label: '确认',
+      className: 'ui-button ui-button-yes',
+      action: function() {
+        this.close();
+      }
+    }, {
+      which: 27,
+      label: '取消',
+      className: 'ui-button ui-button-no',
+      action: function() {
+        this.close();
+      }
+    }]
+  });
 
   // dialog.innerHTML = '<div class="ui-dialog-content"><span>hello, world</span><a class="button ui-close">关闭</a></div>';
 
