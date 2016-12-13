@@ -1399,6 +1399,9 @@
 
       // 发现缓存
       if (cache) {
+        // 移除所有绑定的事件
+        cache.off();
+
         // 初始化内容
         cache.__initContent(content);
         // 初始化参数
