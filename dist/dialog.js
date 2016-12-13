@@ -1489,7 +1489,7 @@
         title: '弹出消息',
         skin: 'ui-dialog',
         align: 'bottom left'
-      }, options);
+      }, options || context.options);
 
       options.title = string(options.title) ? options.title : '弹出消息';
       options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
@@ -1572,17 +1572,30 @@
      */
     set: function(name, value) {
       var context = this;
+      var refresh = false;
 
       switch (name) {
         case 'content':
-          context.__initContent(value);
+          var content = context.content;
+
+          context.__initContent(value || content);
+
+          // 是否需要刷新
+          if (content !== context.content) {
+            refresh = true;
+          }
           break;
         case 'options':
-          context.__initOptions(value);
+          if (value) {
+            refresh = true;
+            value.id = context.options.id;
+
+            context.__initOptions(value);
+          }
           break;
       }
 
-      return context.__render();
+      return refresh ? context.__render() : context;
     },
     /**
      * 移除销毁弹窗
