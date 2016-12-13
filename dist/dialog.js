@@ -1396,8 +1396,12 @@
 
     // 有 id 存在的情况下防止重复弹出
     if (string(options.id)) {
-      if (DIALOGS[options.id]) {
-        return context.__render();
+      // 获取缓存
+      var cache = DIALOGS[options.id];
+
+      // 发现缓存
+      if (cache) {
+        return cache.__render();
       } else {
         DIALOGS[options.id] = context;
       }

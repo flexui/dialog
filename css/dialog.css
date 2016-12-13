@@ -152,7 +152,7 @@
   text-decoration: none;
   outline: none;
   display: inline-block;
-  line-height: 36px;
+  line-height: 34px;
   -webkit-transition: color .1s ease-out, transform .1s ease-out;
   -moz-transition: color .1s ease-out, transform .1s ease-out;
   transition: color .1s ease-out, transform .1s ease-out;
