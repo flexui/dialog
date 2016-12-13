@@ -36,8 +36,6 @@ function create() {
   });
 
   dialog.on('remove', function() {
-    // console.log('remove');
-
     __window.off('resize', reset);
   });
 

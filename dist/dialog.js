@@ -1386,31 +1386,45 @@
     // 调用父类
     Popup.call(context);
 
+    // 重新获取配置
+    options = options || {};
+
+    // 弹窗 id
+    var id = options.id;
+
+    // 有 id 存在的情况下防止重复弹出
+    if (string(id)) {
+      // 获取缓存
+      var cache = DIALOGS[id];
+
+      // 发现缓存
+      if (cache) {
+        // 初始化内容
+        cache.__initContent(content);
+        // 初始化参数
+        cache.__initOptions(options);
+
+        // 渲染
+        return cache.__render();
+      } else {
+        // 缓存 id
+        DIALOGS[id] = context;
+      }
+    }
+
     // 初始化内容
     context.__initContent(content);
     // 初始化参数
     context.__initOptions(options);
-
-    // 有 id 存在的情况下防止重复弹出
-    if (string(options.id)) {
-      // 获取缓存
-      var cache = DIALOGS[options.id];
-
-      // 发现缓存
-      if (cache) {
-        return cache.__render();
-      } else {
-        DIALOGS[options.id] = context;
-      }
-    }
-
-    // 重新获取配置
-    options = context.options;
     // 初始化事件
     context.__initEvents();
     // 渲染
     context.__render();
   }
+
+  Dialog.items = function() {
+    return DIALOGS;
+  };
 
   /**
    * 键盘响应函数
@@ -1492,7 +1506,7 @@
         title: '弹出消息',
         skin: 'ui-dialog',
         align: 'bottom left'
-      }, options || context.options);
+      }, options);
 
       options.title = string(options.title) ? options.title : '弹出消息';
       options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
@@ -1541,7 +1555,7 @@
      *
      * @private
      */
-    __render: function(content, options) {
+    __render: function() {
       var buttons = '';
       var context = this;
       var content = context.content;
@@ -1607,14 +1621,18 @@
      */
     remove: function() {
       var context = this;
-      var id = context.options.id;
 
-      // 调用父类方法
-      POPUPREMOVE.call(context);
+      // 销毁不做处理
+      if (!context.destroyed) {
+        var id = context.options.id;
 
-      // 删除缓存
-      if (context.destroyed && string(id)) {
-        delete DIALOGS[id];
+        // 调用父类方法
+        POPUPREMOVE.call(context);
+
+        // 删除缓存
+        if (context.destroyed && string(id)) {
+          delete DIALOGS[id];
+        }
       }
 
       return context;
