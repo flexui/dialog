@@ -31,8 +31,16 @@ var DIALOGBUTTON = '<button class="{{className}}" type="button" role="' + ACTION
 export default function Dialog(content, options) {
   var context = this;
 
+  // 调用父类
+  Popup.call(context);
+
+  // 初始化内容
+  context.__initContent(content);
+  // 初始化参数
+  context.__initOptions(options);
+
   // 有 id 存在的情况下防止重复弹出
-  if (options && Utils.string(options.id)) {
+  if (Utils.string(options.id)) {
     // 获取缓存
     var cache = DIALOGS[options.id];
 
@@ -43,14 +51,6 @@ export default function Dialog(content, options) {
       DIALOGS[options.id] = context;
     }
   }
-
-  // 调用父类
-  Popup.call(context);
-
-  // 初始化内容
-  context.__initContent(content);
-  // 初始化参数
-  context.__initOptions(options);
 
   // 重新获取配置
   options = context.options;
