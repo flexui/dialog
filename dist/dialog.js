@@ -1386,6 +1386,8 @@
     // 调用父类
     Popup.call(context);
 
+    // 初始化内容
+    context.__initContent(content);
     // 初始化参数
     context.__initOptions(options);
 
@@ -1395,16 +1397,16 @@
     // 有 id 存在的情况下防止重复弹出
     if (string(options.id)) {
       if (DIALOGS[options.id]) {
-        return context.__render(content, options);
+        return context.__render();
       } else {
         DIALOGS[options.id] = context;
       }
     }
 
     // 初始化事件
-    context.__initEvents(options);
+    context.__initEvents();
     // 渲染
-    context.__render(content, options);
+    context.__render();
   }
 
   /**
@@ -1461,6 +1463,19 @@
      * @private
      *@param {Object} options
      */
+    __initContent: function(content) {
+      var context = this;
+
+      context.content = string(content) ? content : '';
+
+      return context;
+    },
+    /**
+     * 初始化参数
+     *
+     * @private
+     *@param {Object} options
+     */
     __initOptions: function(options) {
       var context = this;
 
@@ -1476,6 +1491,7 @@
         align: 'bottom left'
       }, options);
 
+      options.title = string(options.title) ? options.title : '弹出消息';
       options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
 
       return context;
@@ -1484,10 +1500,10 @@
      * 初始化事件绑定
      *
      * @private
-     * @param {Object} options
      */
-    __initEvents: function(options) {
+    __initEvents: function() {
       var context = this;
+      var options = context.options;
       // 选择器
       var selector = template(DELEGATESELECTOR, {
         className: context.className
@@ -1521,12 +1537,12 @@
      * 渲染内容
      *
      * @private
-     * @param {String} content
-     * @param {Object} options
      */
     __render: function(content, options) {
       var buttons = '';
       var context = this;
+      var content = context.content;
+      var options = context.options;
 
       // 生成按钮
       options.buttons.forEach(function(button, index) {
@@ -1536,9 +1552,6 @@
           index: index
         });
       });
-
-      // 格式化内容
-      content = string(content) ? content : '';
 
       // 设置内容
       context.innerHTML = template(DIALOGFRAME, {
@@ -1550,8 +1563,26 @@
 
       return context;
     },
+    /**
+     * 重新设置内容和参数
+     *
+     * @public
+     * @param {String} name
+     * @param {String|Object} value
+     */
     set: function(name, value) {
+      var context = this;
 
+      switch (name) {
+        case 'content':
+          context.__initContent(value);
+          break;
+        case 'options':
+          context.__initOptions(value);
+          break;
+      }
+
+      return context.__render();
     },
     /**
      * 移除销毁弹窗
@@ -1569,6 +1600,8 @@
       if (context.destroyed && string(id)) {
         delete DIALOGS[id];
       }
+
+      return context;
     }
   });
 
