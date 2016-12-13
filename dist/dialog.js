@@ -2,9 +2,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
   typeof define === 'function' && define.amd ? define('dialog', ['jquery'], factory) :
   (global.Dialog = factory(global.jQuery));
-}(this, (function ($) { 'use strict';
+}(this, (function ($$1) { 'use strict';
 
-  $ = 'default' in $ ? $['default'] : $;
+  $$1 = 'default' in $$1 ? $$1['default'] : $$1;
 
   var OP = Object.prototype;
   var AP = Array.prototype;
@@ -98,8 +98,8 @@
 
   // 类型判定接口
   // jquery 对象
-  var win = $(window);
-  var doc = $(document);
+  var win = $$1(window);
+  var doc = $$1(document);
 
   /**
    * 属性拷贝
@@ -278,6 +278,31 @@
     };
   }
 
+  // 模板匹配正则
+  var TEMPLATERE = /{{([a-z]*)}}/gi;
+
+  /**
+   * template
+   *
+   * @export
+   * @param {String} format
+   * @param {Object} data
+   * @returns {String}
+   * ```
+   * var tpl = '{{name}}/{{version}}';
+   * template(tpl, {name:'base', version: '1.0.0'});
+   * ```
+   */
+  function template(format, data) {
+    if (!string(format)) return '';
+
+    if (!data) return format;
+
+    return format.replace(TEMPLATERE, function(all, name) {
+      return data.hasOwnProperty(name) ? data[name] : name;
+    });
+  }
+
   var slice = AP.slice;
 
   function Events() {
@@ -379,7 +404,7 @@
     // 遮罩分配
     alloc: [],
     // 遮罩节点
-    node: $('<div tabindex="0"></div>').css({
+    node: $$1('<div tabindex="0"></div>').css({
       position: 'fixed',
       top: 0,
       left: 0,
@@ -388,7 +413,7 @@
       userSelect: 'none'
     }),
     // 锁定 tab 焦点层
-    shim: $('<div tabindex="0"></div>').css({
+    shim: $$1('<div tabindex="0"></div>').css({
       width: 0,
       height: 0,
       opacity: 0
@@ -463,7 +488,7 @@
 
     context.destroyed = false;
     context.node = document.createElement('div');
-    context.__node = $(context.node)
+    context.__node = $$1(context.node)
       // 设置 tabindex
       .attr('tabindex', '-1')
       // 绑定得到焦点事件
@@ -1185,7 +1210,7 @@
       var popup = context.__node;
 
       // 不能是根节点
-      anchor = anchor.parentNode && $(anchor);
+      anchor = anchor.parentNode && $$1(anchor);
 
       // 定位元素不存在
       if (!anchor || !anchor.length) {
@@ -1297,7 +1322,7 @@
      */
     __offset: function(anchor) {
       var isNode = anchor.parentNode;
-      var offset = isNode ? $(anchor).offset() : {
+      var offset = isNode ? $$1(anchor).offset() : {
         left: anchor.pageX,
         top: anchor.pageY
       };
@@ -1315,11 +1340,11 @@
       // {Element: Ifarme}
       var frameElement = defaultView.frameElement;
 
-      ownerDocument = $(ownerDocument);
+      ownerDocument = $$1(ownerDocument);
 
       var scrollLeft = ownerDocument.scrollLeft();
       var scrollTop = ownerDocument.scrollTop();
-      var frameOffset = $(frameElement).offset();
+      var frameOffset = $$1(frameElement).offset();
       var frameLeft = frameOffset.left;
       var frameTop = frameOffset.top;
 
@@ -1330,11 +1355,31 @@
     }
   });
 
+  // 实例缓存
   var DIALOGS = {};
+  var DIALOGFRAME =
+    '<div class="{{className}}-title">' +
+    '  <div class="{{className}}-handle">' +
+    '    <a href="javascript:;" title="关闭" role="handle" data-action="close" class="{{className}}-handle-close">×</a>' +
+    '  </div>' +
+    '</div>' +
+    '<div class="{{className}}-content">{{content}}</div>' +
+    '<div class="{{className}}-action">{{buttons}}</div>';
+  var DIALOGBUTTON = '<button class="{{className}}" role="action" title="{{label}}" data-action="{{index}}">{{label}}</button>';
 
+  /**
+   * Dialog
+   *
+   * @export
+   * @constructor
+   * @param {String} content
+   * @param {Object} options
+   * @returns {Dialog}
+   */
   function Dialog(content, options) {
     var context = this;
 
+    // 调用父类
     Popup.call(context);
 
     // 合并默认参数
@@ -1349,12 +1394,14 @@
       buttons: [{
         which: 13,
         label: '确认',
+        className: 'ui-button ui-button-yes',
         action: function(e) {
           console.log('确认');
         }
       }, {
         which: 27,
         label: '取消',
+        className: 'ui-button ui-button-no',
         action: function() {
           console.log('取消');
         }
@@ -1364,6 +1411,57 @@
     if (string(options.id) && DIALOGS[options.id]) {
       return context;
     }
+
+    var buttons = '';
+
+    if (Array.isArray(options.buttons)) {
+      options.buttons.forEach(function(button, index) {
+        buttons += template(DIALOGBUTTON, {
+          className: button.className,
+          label: button.label,
+          index: index
+        });
+      });
+    }
+
+    content = string(content) ? content : '';
+
+    context.innerHTML = template(DIALOGFRAME, {
+      className: context.className,
+      content: content,
+      buttons: buttons
+    });
+
+    var selector = template('.{{className}}-handle [role], .{{className}}-action [role]', {
+      className: context.className
+    });
+
+    context.__node.on('click', selector, function(e) {
+      var target = $(this);
+      var role = target.attr('role');
+      var action = target.attr('data-action');
+
+      switch (role) {
+        case 'handle':
+          if (action === 'close') {
+            keyboard(27, context);
+          }
+          break;
+        case 'action':
+          var button = options.buttons ? options.buttons[action] : null;
+
+          if (button) {
+            if (button.which) {
+              keyboard(button.which, context);
+            } else {
+              if (fn(button.action)) {
+                button.action.call(context);
+              }
+            }
+            break;
+          }
+      }
+    });
   }
 
   Dialog.items = function() {

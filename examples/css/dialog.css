@@ -85,6 +85,20 @@
 }
 
 .ui-dialog {
+  min-width: 360px;
+  background: #000;
+  -webkit-overflow-scrolling: touch;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  -webkit-background-clip: content;
+  background-clip: content;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  pointer-events: auto;
+  border-radius: 2px;
+  border: 1px solid #B2B2B2;
+  border: 1px solid rgba(0, 0, 0, .1);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .2);
   /* http://ued.taobao.com/blog/2011/04/onfocus-this-blur/ */
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
@@ -100,7 +114,65 @@
   animation-name: bounceIn;
 }
 
+.ui-dialog-title {
+  height: 32px;
+  line-height: 32px;
+}
+
 .ui-dialog-close {
   -webkit-animation-name: bounceOut;
   animation-name: bounceOut;
+}
+
+.ui-dialog-handle {
+  position: absolute;
+  top: 0;
+  right: 9px;
+}
+
+.ui-dialog-handle {
+  height: 32px;
+  line-height: 32px;
+}
+
+.ui-dialog-handle-close {
+  color: #666;
+  cursor: pointer;
+  font-family: tahoma, sans-serif;
+  font-size: 24px;
+  text-decoration: none;
+  outline: none;
+  display: inline-block;
+  line-height: 32px;
+}
+
+.ui-dialog-content {
+  padding: 9px;
+  min-height: 70px;
+}
+
+.ui-dialog-action {
+  padding: 9px;
+  text-align: right;
+}
+
+.ui-button {
+  height: 28px;
+  line-height: 28px;
+  margin: 0 6px;
+  padding: 0 15px;
+  border: 1px solid #4898d5;
+  background-color: #2e8ded;
+  color: #fff;
+  border-radius: 2px;
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.ui-button:hover {
+  outline: 0;
+  opacity: .9;
+  text-decoration: none;
 }

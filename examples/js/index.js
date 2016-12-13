@@ -5,9 +5,9 @@ var modal = document.getElementById('modal');
 var remove = document.getElementById('remove');
 
 function create() {
-  var dialog = new Dialog();
+  var dialog = new Dialog('hello, world');
 
-  dialog.innerHTML = '<div class="ui-dialog-content"><span>hello, world</span><a class="button ui-close">关闭</a></div>';
+  // dialog.innerHTML = '<div class="ui-dialog-content"><span>hello, world</span><a class="button ui-close">关闭</a></div>';
 
   var reset = function() {
     dialog.reset();
