@@ -17,6 +17,7 @@ body {
   margin: 200px auto;
 }
 
+.ui-button,
 .button {
   height: 28px;
   line-height: 28px;
@@ -32,6 +33,7 @@ body {
   display: inline-block;
 }
 
+.ui-button::hover,
 .button:hover {
   outline: 0;
   opacity: .9;
@@ -40,10 +42,4 @@ body {
 
 label input {
   vertical-align: text-top;
-}
-
-.ui-close {
-  position: absolute;
-  top: 9px;
-  right: 3px;
 }
