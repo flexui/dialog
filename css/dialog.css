@@ -153,6 +153,16 @@
   outline: none;
   display: inline-block;
   line-height: 36px;
+  -webkit-transition: color .1s ease-out, transform .1s ease-out;
+  -moz-transition: color .1s ease-out, transform .1s ease-out;
+  transition: color .1s ease-out, transform .1s ease-out;
+}
+
+.ui-dialog-handle-close:hover {
+  color: #333;
+  -webkit-transform: scale(1.16);
+  -moz-transform: scale(1.16);
+  transform: scale(1.16);
 }
 
 .ui-dialog-content {

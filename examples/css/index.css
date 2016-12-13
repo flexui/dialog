@@ -17,8 +17,7 @@ body {
   margin: 200px auto;
 }
 
-.ui-button,
-.button {
+.ui-button {
   height: 28px;
   line-height: 28px;
   margin: 0 6px;
@@ -31,13 +30,25 @@ body {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  outline: 0;
 }
 
-.ui-button::hover,
-.button:hover {
+.ui-button:hover {
   outline: 0;
-  opacity: .9;
+  opacity: .8;
+  -ms-filter: alpha(Opacity=80);
+  filter: alpha(Opacity=80);
   text-decoration: none;
+}
+
+:root .ui-button:hover {
+  filter: none\9;
+}
+
+.ui-button-white {
+  border: 1px solid #dedede;
+  background-color: #f1f1f1;
+  color: #333;
 }
 
 label input {
