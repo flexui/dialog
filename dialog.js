@@ -73,10 +73,6 @@ export default function Dialog(content, options) {
   context.__render();
 }
 
-Dialog.items = function() {
-  return DIALOGS;
-};
-
 /**
  * 键盘响应函数
  *

@@ -1425,10 +1425,6 @@
     context.__render();
   }
 
-  Dialog.items = function() {
-    return DIALOGS;
-  };
-
   /**
    * 键盘响应函数
    *
