@@ -54,9 +54,7 @@
    * @param {any} value
    * @returns
    */
-  function number(value) {
-    return type(value) === '[object Number]';
-  }
+
 
   /**
    * NaN判定
@@ -1388,17 +1386,11 @@
     // 调用父类
     Popup.call(context);
 
-    // 合并默认参数
-    context.options = options = mix({
-      id: null,
-      buttons: [],
-      anchor: null,
-      fixed: false,
-      keyboard: true,
-      title: '弹出消息',
-      skin: 'ui-dialog',
-      align: 'bottom left'
-    }, options);
+    // 初始化参数
+    context.__initOptions(options);
+
+    // 重新获取配置
+    options = context.options;
 
     // 有 id 存在的情况下防止重复弹出
     if (string(options.id)) {
@@ -1409,63 +1401,26 @@
       }
     }
 
-    // 选择器
-    var selector = template(DELEGATESELECTOR, {
-      className: context.className
-    });
-
-    // 绑定事件
-    context.__node.on('click', selector, function() {
-      var target = $(this);
-      var role = target.attr('role');
-      var action = target.attr('data-action');
-
-      switch (role) {
-        case HANDLEROLE:
-          if (action === 'close') {
-            keyboard(27, context);
-          }
-          break;
-        case ACTIONROLE:
-          var button = options.buttons ? options.buttons[action] : null;
-
-          if (button) {
-            if (fn(button.action)) {
-              button.action.call(context);
-            }
-
-            if (number(button.which)) {
-              keyboard(button.which, context, button);
-            }
-            break;
-          }
-      }
-    });
-
+    // 初始化事件
+    context.__initEvents(options);
     // 渲染
     context.__render(content, options);
   }
-
-  Dialog.items = function() {
-    return DIALOGS;
-  };
 
   /**
    * 键盘响应函数
    *
    * @param {Number} which
    * @param {Dialog} context
-   * @param {Object} ignore
    */
-  function keyboard(which, context, ignore) {
-    if (Array.isArray(context.options.buttons)) {
-      context.options.buttons.forEach(function(button) {
-        if (button.which === which && button !== ignore && fn(button.action)) {
-          button.action.call(context);
-        }
-      });
-    }
+  function keyboard(which, context) {
+    context.options.buttons.forEach(function(button) {
+      if (button.which === which && fn(button.action)) {
+        button.action.call(context);
+      }
+    });
 
+    // Esc 按键
     if (which === 27) {
       context.close();
     }
@@ -1489,8 +1444,10 @@
     }
   });
 
+  // 父类移除方法缓存
   var POPUPREMOVE = Popup.prototype.remove;
 
+  // 原型方法
   inherits(Dialog, Popup, {
     /**
      * 构造函数
@@ -1498,20 +1455,87 @@
      * @readonly
      */
     constructor: Dialog,
+    /**
+     * 初始化参数
+     *
+     * @private
+     *@param {Object} options
+     */
+    __initOptions: function(options) {
+      var context = this;
+
+      // 合并默认参数
+      context.options = options = mix({
+        id: null,
+        buttons: [],
+        anchor: null,
+        fixed: false,
+        keyboard: true,
+        title: '弹出消息',
+        skin: 'ui-dialog',
+        align: 'bottom left'
+      }, options);
+
+      options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
+
+      return context;
+    },
+    /**
+     * 初始化事件绑定
+     *
+     * @private
+     * @param {Object} options
+     */
+    __initEvents: function(options) {
+      var context = this;
+      // 选择器
+      var selector = template(DELEGATESELECTOR, {
+        className: context.className
+      });
+
+      // 绑定事件
+      context.__node.on('click', selector, function() {
+        var target = $(this);
+        var role = target.attr('role');
+        var action = target.attr('data-action');
+
+        switch (role) {
+          case HANDLEROLE:
+            if (action === 'close') {
+              keyboard(27, context);
+            }
+            break;
+          case ACTIONROLE:
+            var button = options.buttons ? options.buttons[action] : null;
+
+            if (button && fn(button.action)) {
+              button.action.call(context);
+            }
+            break;
+        }
+      });
+
+      return context;
+    },
+    /**
+     * 渲染内容
+     *
+     * @private
+     * @param {String} content
+     * @param {Object} options
+     */
     __render: function(content, options) {
       var buttons = '';
       var context = this;
 
       // 生成按钮
-      if (Array.isArray(options.buttons)) {
-        options.buttons.forEach(function(button, index) {
-          buttons += template(DIALOGBUTTON, {
-            className: button.className,
-            label: button.label,
-            index: index
-          });
+      options.buttons.forEach(function(button, index) {
+        buttons += template(DIALOGBUTTON, {
+          className: button.className,
+          label: button.label,
+          index: index
         });
-      }
+      });
 
       // 格式化内容
       content = string(content) ? content : '';
@@ -1529,6 +1553,11 @@
     set: function(name, value) {
 
     },
+    /**
+     * 移除销毁弹窗
+     *
+     * @public
+     */
     remove: function() {
       var context = this;
       var id = context.options.id;
