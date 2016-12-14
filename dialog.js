@@ -114,7 +114,7 @@ function keyboard(which, context) {
 }
 
 // 按键响应
-Utils.win.on('keyup', function(e) {
+Utils.doc.on('keyup', function(e) {
   var active = Layer.active;
 
   if (active instanceof Dialog && active.options.keyboard) {

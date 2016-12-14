@@ -1497,7 +1497,7 @@
   }
 
   // 按键响应
-  win.on('keyup', function(e) {
+  doc.on('keyup', function(e) {
     var active = Layer.active;
 
     if (active instanceof Dialog && active.options.keyboard) {
