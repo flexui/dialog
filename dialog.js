@@ -21,8 +21,8 @@ var DIALOG_FRAME =
 var DIALOG_BUTTON =
   '<button class="{{className}}" type="button" role="' + ACTION_ROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
 // 事件委托过滤选择器
-var HANDLE_SELECTOR = '.{{className}}-handle';
-var ACTION_SELECTOR = '.{{className}}-action';
+var HANDLE_SELECTOR = '> .{{className}}-handle';
+var ACTION_SELECTOR = '> .{{className}}-action';
 var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [role]';
 // 默认设置
 var DIALOG_SETTINGS = {
