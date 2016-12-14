@@ -1510,7 +1510,7 @@
       var context = this;
 
       // 合并默认参数
-      context.options = options = mix({
+      context.options = options = $.extend({
         id: null,
         buttons: [],
         anchor: null,
@@ -1521,8 +1521,15 @@
         align: 'bottom left'
       }, options);
 
+      // 格式化属性
       options.title = string(options.title) ? options.title : '弹出消息';
       options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
+
+      // 设置属性
+      context.anchor = options.anchor;
+      context.fixed = options.fixed;
+      context.align = options.align;
+      context.className = options.skin;
 
       return context;
     },
