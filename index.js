@@ -3,7 +3,7 @@ import { setZIndex } from '@flexui/z-index';
 
 // 对外接口
 var FlexUI = {
-  Dialog: Dialog,
+  dialog: Dialog,
   setZIndex: setZIndex
 };
 

@@ -1430,6 +1430,11 @@
   function Dialog(content, options) {
     var context = this;
 
+    // 支持非 new 运算
+    if (!(context instanceof Dialog)) {
+      return new Dialog(content, options);
+    }
+
     // 调用父类
     Popup.call(context);
 
@@ -1715,7 +1720,7 @@
 
   // 对外接口
   var FlexUI = {
-    Dialog: Dialog,
+    dialog: Dialog,
     setZIndex: setZIndex
   };
 

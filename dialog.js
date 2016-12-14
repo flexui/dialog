@@ -47,6 +47,11 @@ var DIALOG_SETTINGS = {
 export default function Dialog(content, options) {
   var context = this;
 
+  // 支持非 new 运算
+  if (!(context instanceof Dialog)) {
+    return new Dialog(content, options);
+  }
+
   // 调用父类
   Popup.call(context);
 
