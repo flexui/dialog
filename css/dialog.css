@@ -124,6 +124,7 @@
 .ui-dialog-title {
   height: 36px;
   line-height: 36px;
+  background-color: #F8F8F8;
   border-bottom: 1px solid #B2B2B2;
   border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
