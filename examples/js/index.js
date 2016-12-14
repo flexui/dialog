@@ -4,11 +4,19 @@ var modal = document.getElementById('modal');
 var remove = document.getElementById('remove');
 
 function create(id, title, content, buttons) {
-  return new Dialog(content, {
+  var dialog = new Dialog(content, {
     id: id,
     title: title,
     buttons: buttons
   });
+
+  dialog.on('close', function() {
+    if (remove.checked) {
+      dialog.remove();
+    }
+  });
+
+  return dialog;
 }
 
 $('#button').on('click', function() {
