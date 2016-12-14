@@ -177,13 +177,14 @@ Utils.inherits(Dialog, Popup, {
    * 初始化参数
    *
    * @private
-   *@param {Object} options
+   * @param {Object} options
+   * @param {Object} defaults
    */
-  __initOptions: function(options) {
+  __initOptions: function(options, defaults) {
     var context = this;
 
     // 合并默认参数
-    context.options = options = $.extend({}, DIALOG_SETTINGS, options);
+    context.options = options = $.extend({}, defaults || DIALOG_SETTINGS, options);
 
     // 格式化属性
     options.title = Utils.string(options.title) ? options.title : DIALOG_SETTINGS.title;
@@ -284,6 +285,7 @@ Utils.inherits(Dialog, Popup, {
       case 'content':
         var content = context.content;
 
+        // 重新初始化内容
         context.__initContent(value || content);
 
         // 是否需要刷新
@@ -294,9 +296,12 @@ Utils.inherits(Dialog, Popup, {
       case 'options':
         if (value) {
           refresh = true;
-          value.id = context.options.id;
 
-          context.__initOptions(value);
+          // 禁止复写 id
+          delete value.id;
+
+          // 重新初始化参数
+          context.__initOptions(value, context.options);
         }
         break;
     }
