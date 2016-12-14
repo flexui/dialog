@@ -1721,7 +1721,13 @@
   // 对外接口
   var FlexUI = {
     dialog: Dialog,
-    setZIndex: setZIndex
+    zIndex: function(value) {
+      if (arguments.length) {
+        return setZIndex(value)
+      } else {
+        return getZIndex();
+      }
+    }
   };
 
   return FlexUI;
