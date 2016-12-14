@@ -7,7 +7,7 @@ const npm = require('rollup-plugin-node-resolve');
 
 rollup.rollup({
   legacy: true,
-  entry: 'dialog.js',
+  entry: 'index.js',
   plugins: [npm({
     // use "jsnext:main" if possible
     // – see https://github.com/rollup/rollup/wiki/jsnext:main
@@ -53,7 +53,7 @@ rollup.rollup({
     indent: true,
     useStrict: true,
     moduleId: 'dialog',
-    moduleName: 'Dialog',
+    moduleName: 'FlexUI',
     globals: { jquery: 'jQuery' }
   });
 

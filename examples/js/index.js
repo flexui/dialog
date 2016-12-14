@@ -6,7 +6,7 @@ var remove = document.getElementById('remove');
 function create(id, title, content, options) {
   options = options || {};
 
-  var dialog = new Dialog(content, {
+  var dialog = new FlexUI.Dialog(content, {
     id: id,
     title: title,
     skin: options.skin,

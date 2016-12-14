@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery')) :
   typeof define === 'function' && define.amd ? define('dialog', ['jquery'], factory) :
-  (global.Dialog = factory(global.jQuery));
+  (global.FlexUI = factory(global.jQuery));
 }(this, (function ($) { 'use strict';
 
   $ = 'default' in $ ? $['default'] : $;
@@ -401,6 +401,35 @@
     }
   };
 
+  // 默认 z-index 值
+  var Z_INDEX = 1024;
+
+  /**
+   * 设置初始 z-index 值
+   *
+   * @export
+   * @param {Number} value
+   * @returns {Number} Z_INDEX
+   */
+  function setZIndex(value) {
+    if (number(value) && value > 0 && value !== Infinity) {
+      Z_INDEX = value;
+    }
+
+    return Z_INDEX;
+  }
+
+  /**
+   * 获取当前 z-index 值
+   *
+   * @export
+   * @param {Boolean} increment 是否自增
+   * @returns {Number} Z_INDEX
+   */
+  function getZIndex(increment) {
+    return increment ? Z_INDEX++ : Z_INDEX;
+  }
+
   var BACKDROP = {
     // 遮罩分配
     alloc: [],
@@ -504,8 +533,6 @@
 
   // 当前得到焦点的实例
   Layer.active = null;
-  // 层级
-  Layer.zIndex = 1024;
   // 锁屏遮罩
   Layer.backdrop = BACKDROP;
 
@@ -628,7 +655,7 @@
 
       // 非激活状态才做处理
       if (active !== context) {
-        var index = context.zIndex = Layer.zIndex++;
+        var index = context.zIndex = getZIndex(true);
 
         // 刷新遮罩
         if (context.modal) {
@@ -1686,6 +1713,12 @@
     }
   });
 
-  return Dialog;
+  // 对外接口
+  var FlexUI = {
+    Dialog: Dialog,
+    setZIndex: setZIndex
+  };
+
+  return FlexUI;
 
 })));

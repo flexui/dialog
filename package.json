@@ -23,6 +23,7 @@
   "dependencies": {
     "@flexui/utils": "https://github.com/flexui/utils/archive/master.tar.gz",
     "@flexui/layer": "https://github.com/flexui/layer/archive/master.tar.gz",
+    "@flexui/z-index": "https://github.com/flexui/z-index/archive/master.tar.gz",
     "@flexui/effects-events": "https://github.com/flexui/effects-events/archive/master.tar.gz"
   },
   "devDependencies": {
