@@ -24,6 +24,17 @@ var DIALOG_BUTTON =
 var HANDLE_SELECTOR = '.{{className}}-handle';
 var ACTION_SELECTOR = '.{{className}}-action';
 var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [role]';
+// 默认设置
+var DIALOG_SETTINGS = {
+  id: null,
+  buttons: [],
+  anchor: null,
+  fixed: false,
+  keyboard: true,
+  title: '弹出消息',
+  skin: 'ui-dialog',
+  align: 'bottom left'
+};
 
 /**
  * Dialog
@@ -151,20 +162,12 @@ Utils.inherits(Dialog, Popup, {
     var context = this;
 
     // 合并默认参数
-    context.options = options = $.extend({
-      id: null,
-      buttons: [],
-      anchor: null,
-      fixed: false,
-      keyboard: true,
-      title: '弹出消息',
-      skin: 'ui-dialog',
-      align: 'bottom left'
-    }, options);
+    context.options = options = $.extend(DIALOG_SETTINGS, options);
 
     // 格式化属性
-    options.title = Utils.string(options.title) ? options.title : '弹出消息';
-    options.buttons = Array.isArray(options.buttons) ? options.buttons : [];
+    options.title = Utils.string(options.title) ? options.title : DIALOG_SETTINGS.title;
+    options.buttons = Array.isArray(options.buttons) ? options.buttons : DIALOG_SETTINGS.buttons;
+    options.skin = options.skin && Utils.string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
 
     // 设置属性
     context.anchor = options.anchor;
