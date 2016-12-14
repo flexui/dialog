@@ -447,9 +447,13 @@
      */
     show: function(anchor) {
       var alloc = BACKDROP.alloc;
+      var index = alloc.indexOf(anchor);
 
-      if (alloc.indexOf(anchor) === -1) {
+      // 不存在或者不在队尾重新刷新遮罩位置和缓存队列
+      if (index === -1 || index !== alloc.length - 1) {
+        // 跟随元素
         BACKDROP.attach(anchor);
+        // 放置缓存到队尾
         alloc.push(anchor);
       }
     },
@@ -624,8 +628,12 @@
       if (active !== context) {
         var index = context.zIndex = Layer.zIndex++;
 
-        // 设置遮罩层级
-        BACKDROP.zIndex(index);
+        // 刷新遮罩
+        if (context.modal) {
+          BACKDROP.show(context);
+          BACKDROP.zIndex(index);
+        }
+
         // 设置弹窗层级
         layer.css('zIndex', index);
         // 添加激活类名
