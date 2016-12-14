@@ -1477,7 +1477,7 @@
   });
 
   // 父类移除方法缓存
-  var POPUPREMOVE = Popup.prototype.remove;
+  var POPUP_REMOVE = Popup.prototype.remove;
 
   // 原型方法
   inherits(Dialog, Popup, {
@@ -1646,7 +1646,7 @@
         var resize = context.__resize;
 
         // 调用父类方法
-        POPUPREMOVE.call(context);
+        POPUP_REMOVE.call(context);
 
         // 删除缓存
         if (context.destroyed) {
