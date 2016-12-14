@@ -12,7 +12,6 @@ function create(id, title, content, options) {
     skin: options.skin,
     align: options.align,
     fixed: options.fixed,
-    anchor: options.anchor,
     buttons: options.buttons
   });
 

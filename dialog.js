@@ -28,7 +28,6 @@ var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [rol
 var DIALOG_SETTINGS = {
   id: null,
   buttons: [],
-  anchor: null,
   fixed: false,
   keyboard: true,
   title: '弹出消息',
@@ -187,7 +186,6 @@ Utils.inherits(Dialog, Popup, {
     options.skin = options.skin && Utils.string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
 
     // 设置属性
-    context.anchor = options.anchor;
     context.fixed = options.fixed;
     context.align = options.align;
     context.className = options.skin;

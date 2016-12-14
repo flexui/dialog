@@ -921,11 +921,6 @@
      */
     fixed: false,
     /**
-     * 判断对话框是否删除
-     * @public
-     * @readonly
-     */
-    /**
      * 对齐方式
      * @public
      * @property
@@ -1389,7 +1384,6 @@
   var DIALOG_SETTINGS = {
     id: null,
     buttons: [],
-    anchor: null,
     fixed: false,
     keyboard: true,
     title: '弹出消息',
@@ -1548,7 +1542,6 @@
       options.skin = options.skin && string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
 
       // 设置属性
-      context.anchor = options.anchor;
       context.fixed = options.fixed;
       context.align = options.align;
       context.className = options.skin;
