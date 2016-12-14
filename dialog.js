@@ -5,19 +5,25 @@ import * as Utils from '@flexui/utils';
 
 // 实例缓存
 var DIALOGS = {};
-var HANDLEROLE = 'handle';
-var ACTIONROLE = 'action';
-var DIALOGFRAME =
+var HANDLE_ROLE = 'handle';
+var ACTION_ROLE = 'action';
+// 弹窗主体框架
+var DIALOG_FRAME =
   '<div class="{{className}}-title">' +
   '  <div class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
   '  <div class="{{className}}-handle">' +
-  '    <a href="javascript:;" title="关闭" role="' + HANDLEROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
+  '    <a href="javascript:;" title="关闭" role="' + HANDLE_ROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
   '  </div>' +
   '</div>' +
   '<div class="{{className}}-content">{{content}}</div>' +
   '<div class="{{className}}-action">{{buttons}}</div>';
-var DELEGATESELECTOR = '.{{className}}-handle [role], .{{className}}-action [role]';
-var DIALOGBUTTON = '<button class="{{className}}" type="button" role="' + ACTIONROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+// 弹窗按钮
+var DIALOG_BUTTON =
+  '<button class="{{className}}" type="button" role="' + ACTION_ROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+// 事件委托过滤选择器
+var HANDLE_SELECTOR = '.{{className}}-handle';
+var ACTION_SELECTOR = '.{{className}}-action';
+var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [role]';
 
 /**
  * Dialog
@@ -98,13 +104,14 @@ Utils.win.on('keyup', function(e) {
 
   if (active instanceof Dialog && active.options.keyboard) {
     var which = e.which;
-    var target = $(e.target);
-    var role = target.attr('role');
+    var target = e.target;
+    var selector = Utils.template(ACTION_SELECTOR, {
+      className: active.className
+    });
+    var action = active.__node.find(selector)[0];
 
     // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
-    if (which !== 13 ||
-      role !== ACTIONROLE ||
-      !active.node.contains(e.target)) {
+    if (which !== 13 || !action || !action.contains(target)) {
       keyboard(which, active);
     }
   }
@@ -169,7 +176,7 @@ Utils.inherits(Dialog, Popup, {
     var context = this;
     var options = context.options;
     // 选择器
-    var selector = Utils.template(DELEGATESELECTOR, {
+    var selector = Utils.template(DELEGATE_SELECTOR, {
       className: context.className
     });
 
@@ -180,12 +187,12 @@ Utils.inherits(Dialog, Popup, {
       var action = target.attr('data-action');
 
       switch (role) {
-        case HANDLEROLE:
+        case HANDLE_ROLE:
           if (action === 'close') {
             keyboard(27, context);
           }
           break;
-        case ACTIONROLE:
+        case ACTION_ROLE:
           var button = options.buttons ? options.buttons[action] : null;
 
           if (button && Utils.fn(button.action)) {
@@ -193,6 +200,11 @@ Utils.inherits(Dialog, Popup, {
           }
           break;
       }
+    });
+
+    // 窗口改变重新定位
+    Utils.win.on('resize', context.__resize = function() {
+      context.reset();
     });
 
     return context;
@@ -210,7 +222,7 @@ Utils.inherits(Dialog, Popup, {
 
     // 生成按钮
     options.buttons.forEach(function(button, index) {
-      buttons += Utils.template(DIALOGBUTTON, {
+      buttons += Utils.template(DIALOG_BUTTON, {
         className: button.className,
         label: button.label,
         index: index
@@ -218,7 +230,7 @@ Utils.inherits(Dialog, Popup, {
     });
 
     // 设置内容
-    context.innerHTML = Utils.template(DIALOGFRAME, {
+    context.innerHTML = Utils.template(DIALOG_FRAME, {
       className: context.className,
       title: options.title,
       content: content,
@@ -272,13 +284,20 @@ Utils.inherits(Dialog, Popup, {
     // 销毁不做处理
     if (!context.destroyed) {
       var id = context.options.id;
+      var resize = context.__resize;
 
       // 调用父类方法
       POPUPREMOVE.call(context);
 
       // 删除缓存
-      if (context.destroyed && Utils.string(id)) {
-        delete DIALOGS[id];
+      if (context.destroyed) {
+        // 移除窗口变更事件
+        Utils.win.off('resize', resize);
+
+        // 删除缓存
+        if (Utils.string(id)) {
+          delete DIALOGS[id];
+        }
       }
     }
 

@@ -66,20 +66,21 @@
 
 
   // Native function RegExp
-  var NATIVERE = '';
+  // @see https://github.com/kgryte/regex-native-function/blob/master/lib/index.js
+  var NATIVE_RE = '';
 
   // Use a native function as a template...
-  NATIVERE += FPToString.call(Function);
+  NATIVE_RE += FPToString.call(Function);
   // Escape special RegExp characters...
-  NATIVERE = NATIVERE.replace(/([.*+?^=!:$(){}|[\]\/\\])/g, '\\$1');
+  NATIVE_RE = NATIVE_RE.replace(/([.*+?^=!:$(){}|[\]\/\\])/g, '\\$1');
   // Replace any mentions of `Function` to make template generic.
   // Replace `for ...` and additional info provided in other environments, such as Rhino (see lodash).
-  NATIVERE = NATIVERE.replace(/Function|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?');
+  NATIVE_RE = NATIVE_RE.replace(/Function|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?');
   // Bracket the regex:
-  NATIVERE = '^' + NATIVERE + '$';
+  NATIVE_RE = '^' + NATIVE_RE + '$';
 
   // Get RegExp
-  NATIVERE = new RegExp(NATIVERE);
+  NATIVE_RE = new RegExp(NATIVE_RE);
 
   /**
    * 是否是原生方法
@@ -93,7 +94,7 @@
       return false;
     }
 
-    return NATIVERE.test(fn.toString());
+    return NATIVE_RE.test(fn.toString());
   }
 
   // 类型判定接口
@@ -279,7 +280,7 @@
   }
 
   // 模板匹配正则
-  var TEMPLATERE = /{{([a-z]*)}}/gi;
+  var TEMPLATE_RE = /{{([a-z]*)}}/gi;
 
   /**
    * template
@@ -298,7 +299,7 @@
 
     if (!data) return format;
 
-    return format.replace(TEMPLATERE, function(all, name) {
+    return format.replace(TEMPLATE_RE, function(all, name) {
       return data.hasOwnProperty(name) ? data[name] : name;
     });
   }
@@ -397,8 +398,6 @@
       return self;
     }
   };
-
-  var ZINDEX = 1024;
 
   var BACKDROP = {
     // 遮罩分配
@@ -500,7 +499,7 @@
   // 当前得到焦点的实例
   Layer.active = null;
   // 层级
-  Layer.zIndex = ZINDEX;
+  Layer.zIndex = 1024;
   // 锁屏遮罩
   Layer.backdrop = BACKDROP;
 
@@ -875,7 +874,7 @@
   }
 
   // 对齐方式拆分正则
-  var ALIGNSPLITRE = /\s+/;
+  var ALIGNSPLIT_RE = /\s+/;
 
   function Popup() {
     var context = this;
@@ -1122,7 +1121,7 @@
 
       // 移除事件绑定并从 DOM 中移除节点
       context.__node
-        .off('focusin')
+        .off()
         .remove();
 
       // 切换销毁状态
@@ -1249,7 +1248,7 @@
       var maxLeft = minLeft + clientWidth - dialogWidth;
 
       var css = {};
-      var align = context.align.split(ALIGNSPLITRE);
+      var align = context.align.split(ALIGNSPLIT_RE);
       var className = context.className + '-';
       var reverse = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
       var name = { top: 'top', bottom: 'top', left: 'left', right: 'left' };
@@ -1357,19 +1356,25 @@
 
   // 实例缓存
   var DIALOGS = {};
-  var HANDLEROLE = 'handle';
-  var ACTIONROLE = 'action';
-  var DIALOGFRAME =
+  var HANDLE_ROLE = 'handle';
+  var ACTION_ROLE = 'action';
+  // 弹窗主体框架
+  var DIALOG_FRAME =
     '<div class="{{className}}-title">' +
     '  <div class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
     '  <div class="{{className}}-handle">' +
-    '    <a href="javascript:;" title="关闭" role="' + HANDLEROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
+    '    <a href="javascript:;" title="关闭" role="' + HANDLE_ROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
     '  </div>' +
     '</div>' +
     '<div class="{{className}}-content">{{content}}</div>' +
     '<div class="{{className}}-action">{{buttons}}</div>';
-  var DELEGATESELECTOR = '.{{className}}-handle [role], .{{className}}-action [role]';
-  var DIALOGBUTTON = '<button class="{{className}}" type="button" role="' + ACTIONROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+  // 弹窗按钮
+  var DIALOG_BUTTON =
+    '<button class="{{className}}" type="button" role="' + ACTION_ROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+  // 事件委托过滤选择器
+  var HANDLE_SELECTOR = '.{{className}}-handle';
+  var ACTION_SELECTOR = '.{{className}}-action';
+  var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [role]';
 
   /**
    * Dialog
@@ -1450,13 +1455,14 @@
 
     if (active instanceof Dialog && active.options.keyboard) {
       var which = e.which;
-      var target = $(e.target);
-      var role = target.attr('role');
+      var target = e.target;
+      var selector = template(ACTION_SELECTOR, {
+        className: active.className
+      });
+      var action = active.__node.find(selector)[0];
 
       // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
-      if (which !== 13 ||
-        role !== ACTIONROLE ||
-        !active.node.contains(e.target)) {
+      if (which !== 13 || !action || !action.contains(target)) {
         keyboard(which, active);
       }
     }
@@ -1521,7 +1527,7 @@
       var context = this;
       var options = context.options;
       // 选择器
-      var selector = template(DELEGATESELECTOR, {
+      var selector = template(DELEGATE_SELECTOR, {
         className: context.className
       });
 
@@ -1532,12 +1538,12 @@
         var action = target.attr('data-action');
 
         switch (role) {
-          case HANDLEROLE:
+          case HANDLE_ROLE:
             if (action === 'close') {
               keyboard(27, context);
             }
             break;
-          case ACTIONROLE:
+          case ACTION_ROLE:
             var button = options.buttons ? options.buttons[action] : null;
 
             if (button && fn(button.action)) {
@@ -1545,6 +1551,11 @@
             }
             break;
         }
+      });
+
+      // 窗口改变重新定位
+      win.on('resize', context.__resize = function() {
+        context.reset();
       });
 
       return context;
@@ -1562,7 +1573,7 @@
 
       // 生成按钮
       options.buttons.forEach(function(button, index) {
-        buttons += template(DIALOGBUTTON, {
+        buttons += template(DIALOG_BUTTON, {
           className: button.className,
           label: button.label,
           index: index
@@ -1570,7 +1581,7 @@
       });
 
       // 设置内容
-      context.innerHTML = template(DIALOGFRAME, {
+      context.innerHTML = template(DIALOG_FRAME, {
         className: context.className,
         title: options.title,
         content: content,
@@ -1624,13 +1635,20 @@
       // 销毁不做处理
       if (!context.destroyed) {
         var id = context.options.id;
+        var resize = context.__resize;
 
         // 调用父类方法
         POPUPREMOVE.call(context);
 
         // 删除缓存
-        if (context.destroyed && string(id)) {
-          delete DIALOGS[id];
+        if (context.destroyed) {
+          // 移除窗口变更事件
+          win.off('resize', resize);
+
+          // 删除缓存
+          if (string(id)) {
+            delete DIALOGS[id];
+          }
         }
       }
 

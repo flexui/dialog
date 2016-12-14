@@ -3,33 +3,16 @@ var follow = document.getElementById('follow');
 var modal = document.getElementById('modal');
 var remove = document.getElementById('remove');
 
-function create(id, content, buttons) {
-  var dialog = new Dialog(content, {
+function create(id, title, content, buttons) {
+  return new Dialog(content, {
     id: id,
+    title: title,
     buttons: buttons
   });
-
-  var reset = function() {
-    dialog.reset();
-  };
-
-  __window.on('resize', reset);
-
-  dialog.on('close', function() {
-    if (remove.checked) {
-      dialog.remove();
-    }
-  });
-
-  dialog.on('remove', function() {
-    __window.off('resize', reset);
-  });
-
-  return dialog;
 }
 
 $('#button').on('click', function() {
-  var popup = create('confirm', 'hello, world', [
+  var popup = create('confirm', null, 'hello, world', [
     {
       which: 13,
       label: '确认',
@@ -37,7 +20,7 @@ $('#button').on('click', function() {
       action: function() {
         this.close();
 
-        create('alert', '你点击了确认按钮！', [{
+        create('alert', '提示', '你点击了确认按钮！', [{
           which: 13,
           label: '确认',
           className: 'ui-button',
@@ -54,7 +37,7 @@ $('#button').on('click', function() {
       action: function() {
         this.close();
 
-        create('alert', '你点击了取消按钮！', [{
+        create('alert', '提示', '你点击了取消按钮！', [{
           which: 13,
           label: '确认',
           className: 'ui-button',
