@@ -28,7 +28,7 @@ $('#button').on('click', function() {
       action: function() {
         this.close();
 
-        create('alert', '提示', '你点击了确认按钮！', [{
+        create('alert', '提示', '你执行了确认操作！', [{
           which: 13,
           label: '确认',
           className: 'ui-button',
@@ -45,7 +45,7 @@ $('#button').on('click', function() {
       action: function() {
         this.close();
 
-        create('alert', '提示', '你点击了取消按钮！', [{
+        create('alert', '提示', '你执行了取消操作！', [{
           which: 13,
           label: '确认',
           className: 'ui-button',
