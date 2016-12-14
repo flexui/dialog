@@ -1521,7 +1521,7 @@
       var context = this;
 
       // 合并默认参数
-      context.options = options = $.extend(DIALOG_SETTINGS, options);
+      context.options = options = $.extend({}, DIALOG_SETTINGS, options);
 
       // 格式化属性
       options.title = string(options.title) ? options.title : DIALOG_SETTINGS.title;
