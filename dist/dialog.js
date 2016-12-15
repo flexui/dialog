@@ -1510,9 +1510,20 @@
     context.__render();
   }
 
-  Dialog.active = function(){
-    return Layer.active;
-  };
+  /**
+   * 执行动作回调
+   *
+   * @param items
+   * @param which
+   * @param context
+   */
+  function execAction(items, which, context) {
+    items.forEach(function(item) {
+      if (item.which === which && fn(item.action)) {
+        item.action.call(context, item);
+      }
+    });
+  }
 
   /**
    * 键盘响应函数
@@ -1521,11 +1532,10 @@
    * @param {Dialog} context
    */
   function keyboard(which, context) {
-    context.options.buttons.forEach(function(button) {
-      if (button.which === which && fn(button.action)) {
-        button.action.call(context);
-      }
-    });
+    var options = context.options;
+
+    execAction(options.handles, which, context);
+    execAction(options.buttons, which, context);
   }
 
   // 按键响应
@@ -1535,21 +1545,24 @@
     if (active instanceof Dialog && active.options.keyboard) {
       var which = e.which;
       var target = e.target;
+      var dialog = active.__node;
       var skin = active.className;
 
       // 按钮容器
-      var action = active.__node.find(template(ACTION_SELECTOR, { skin: skin }))[0];
+      var action = dialog.find(template(ACTION_SELECTOR, { skin: skin }))[0];
       // 窗体操作框容器
-      var handle = active.__node.find(template(HANDLE_SELECTOR, { skin: skin }))[0];
-
-      // 触发元素是否再容器中
-      var contains = (action && action.contains(target)) ||
-        (handle && handle.contains(target));
+      var handle = dialog.find(template(HANDLE_SELECTOR, { skin: skin }))[0];
 
       // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
-      if (which !== 13 || !contains) {
-        keyboard(which, active);
+      if (which === 13) {
+        // 触发元素是否再容器中
+        if ((handle && handle.contains(target)) || (action && action.contains(target))) {
+          return e.preventDefault();
+        }
       }
+
+      // 执行逻辑
+      keyboard(which, active);
     }
   });
 
