@@ -1534,23 +1534,6 @@
     }
   });
 
-  /**
-   * 初始 z-index 值
-   *
-   * @static
-   * @param {Number} [zIndex]
-   * @return {Number}
-   */
-  Dialog.zIndex = function(zIndex) {
-    if (arguments.length) {
-      if (number(zIndex) && zIndex > 0 && zIndex !== Infinity) {
-        Layer.zIndex = zIndex;
-      }
-    }
-
-    return Layer.zIndex;
-  };
-
   // 父类移除方法缓存
   var POPUP_REMOVE = Popup.prototype.remove;
 
