@@ -17,7 +17,7 @@ body {
   margin: 200px auto;
 }
 
-.ui-dialog-handle-close {
+.ui-dialog-control-close {
   color: #666;
   cursor: pointer;
   font-family: tahoma, sans-serif;
@@ -31,7 +31,7 @@ body {
   transition: color .1s ease-out, transform .1s ease-out;
 }
 
-.ui-dialog-handle-close:hover {
+.ui-dialog-control-close:hover {
   color: #333;
   -webkit-transform: scale(1.16);
   -moz-transform: scale(1.16);

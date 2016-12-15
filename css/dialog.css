@@ -121,7 +121,7 @@
   animation-name: bounceOut;
 }
 
-.ui-dialog-title {
+.ui-dialog-header {
   height: 36px;
   line-height: 36px;
   background-color: #F8F8F8;
@@ -129,7 +129,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
 
-.ui-dialog-caption {
+.ui-dialog-title {
   color: #333;
   font-size: 14px;
   padding: 0 35px 0 9px;
@@ -139,13 +139,10 @@
   text-overflow: ellipsis;
 }
 
-.ui-dialog-handle {
+.ui-dialog-controls {
   position: absolute;
   top: 0;
   right: 9px;
-}
-
-.ui-dialog-handle {
   height: 36px;
   line-height: 36px;
 }
@@ -155,7 +152,7 @@
   min-height: 70px;
 }
 
-.ui-dialog-action {
+.ui-dialog-actions {
   padding: 9px;
   text-align: right;
 }

@@ -3,52 +3,55 @@ import Layer from '@flexui/layer';
 import Popup from './lib/popup.js';
 import * as Utils from '@flexui/utils';
 
-// 实例缓存
+// 变量
 var DIALOGS = {};
-var HANDLE_ROLE = 'handle';
+var CONTROL_ROLE = 'control';
 var ACTION_ROLE = 'action';
 var ROLE_ATTR = 'data-role';
 var ACTION_ID_ATTR = 'data-action-id';
+var HEADER_CLASSNAME = '{{skin}}-header';
+var CONTROLS_CLASSNAME = '{{skin}}-controls';
+var ACTIONS_CLASSNAME = '{{skin}}-actions';
 // 弹窗标题
 var DIALOG_TITLE =
-  '<div id="{{id}}" class="{{skin}}-caption" title={{title}}>{{value}}</div>';
+  '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
 // 弹窗内容
 var DIALOG_CONTENT =
   '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
 // 弹窗主体框架
 var DIALOG_FRAME =
-  '<div class="{{skin}}-title">' +
+  '<div class="' + HEADER_CLASSNAME + '">' +
   '  {{title}}' +
-  '  <div class="{{skin}}-handle">{{handles}}</div>' +
+  '  <div class="' + CONTROLS_CLASSNAME + '">{{controls}}</div>' +
   '</div>' +
   '{{content}}' +
-  '<div class="{{skin}}-action">{{buttons}}</div>';
+  '<div class="' + ACTIONS_CLASSNAME + '">{{actions}}</div>';
 // 标题栏操作按钮，例如关闭，最大化，最小化等
-var DIALOG_HANDLE =
+var DIALOG_CONTROL =
   '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
-  ROLE_ATTR + '="' + HANDLE_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
+  ROLE_ATTR + '="' + CONTROL_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
 // 弹窗按钮，例如确认，取消等
-var DIALOG_BUTTON =
+var DIALOG_ACTION =
   '<button type="button" class="{{className}}" title="{{title}}" ' +
   ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
 // 标题栏操作按钮面板选择器
-var HANDLE_SELECTOR =
-  '> .{{skin}}-title > .{{skin}}-handle';
+var CONTROLS_SELECTOR =
+  '> .' + HEADER_CLASSNAME + ' > .' + CONTROLS_CLASSNAME;
 // 按钮面板
-var ACTION_SELECTOR =
-  '> .{{skin}}-action';
+var ACTIONS_SELECTOR =
+  '> .' + ACTIONS_CLASSNAME;
 // 事件委托选择器
 var DELEGATE_SELECTOR =
-  HANDLE_SELECTOR + ' [' + ROLE_ATTR + '], ' + ACTION_SELECTOR + ' [' + ROLE_ATTR + ']';
+  CONTROLS_SELECTOR + ' [' + ROLE_ATTR + '], ' + ACTIONS_SELECTOR + ' [' + ROLE_ATTR + ']';
 // 默认设置
 var DIALOG_SETTINGS = {
   id: null,
   // 弹出标题， {String|Object}
   title: '',
   // 标题栏操作按钮
-  handles: [],
+  controls: [],
   // 弹窗按钮，参数同 title
-  buttons: [],
+  actions: [],
   fixed: false,
   // 键盘操作
   keyboard: true,
@@ -178,8 +181,8 @@ function renderActionView(format, items, skin) {
 function keyboard(which, context) {
   var options = context.options;
 
-  execAction(options.handles, which, context);
-  execAction(options.buttons, which, context);
+  execAction(options.controls, which, context);
+  execAction(options.actions, which, context);
 }
 
 // 按键响应
@@ -192,15 +195,15 @@ Utils.doc.on('keyup', function(e) {
     var dialog = active.__node;
     var skin = active.className;
 
-    // 按钮容器
-    var action = dialog.find(Utils.template(ACTION_SELECTOR, { skin: skin }))[0];
     // 窗体操作框容器
-    var handle = dialog.find(Utils.template(HANDLE_SELECTOR, { skin: skin }))[0];
+    var controls = dialog.find(Utils.template(CONTROLS_SELECTOR, { skin: skin }))[0];
+    // 按钮容器
+    var actions = dialog.find(Utils.template(ACTIONS_SELECTOR, { skin: skin }))[0];
 
     // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
     if (which === 13) {
       // 触发元素是否再容器中
-      if ((handle && handle.contains(target)) || (action && action.contains(target))) {
+      if ((controls && controls.contains(target)) || (actions && actions.contains(target))) {
         return e.preventDefault();
       }
     }
@@ -259,8 +262,8 @@ Utils.inherits(Dialog, Popup, {
     }
 
     // 格式化其它参数
-    options.handles = Array.isArray(options.handles) ? options.handles : DIALOG_SETTINGS.handles;
-    options.buttons = Array.isArray(options.buttons) ? options.buttons : DIALOG_SETTINGS.buttons;
+    options.controls = Array.isArray(options.controls) ? options.controls : DIALOG_SETTINGS.controls;
+    options.actions = Array.isArray(options.actions) ? options.actions : DIALOG_SETTINGS.actions;
     options.skin = options.skin && Utils.string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
 
     // 设置属性
@@ -291,11 +294,11 @@ Utils.inherits(Dialog, Popup, {
       var id = target.attr(ACTION_ID_ATTR);
 
       switch (role) {
-        case HANDLE_ROLE:
-          current = options.handles[id];
+        case CONTROL_ROLE:
+          current = options.controls[id];
           break;
         case ACTION_ROLE:
-          current = options.buttons[id];
+          current = options.actions[id];
           break;
       }
 
@@ -325,9 +328,9 @@ Utils.inherits(Dialog, Popup, {
     var title = options.title;
 
     // 生成标题栏操作按钮
-    var handles = renderActionView(DIALOG_HANDLE, options.handles, skin);
+    var controls = renderActionView(DIALOG_CONTROL, options.controls, skin);
     // 生成按钮
-    var buttons = renderActionView(DIALOG_BUTTON, options.buttons, skin);
+    var actions = renderActionView(DIALOG_ACTION, options.actions, skin);
 
     // 设置内容
     context.innerHTML = Utils.template(DIALOG_FRAME, {
@@ -338,13 +341,13 @@ Utils.inherits(Dialog, Popup, {
         title: title.title || title.value || '',
         value: title.value || ''
       }),
-      handles: handles,
+      controls: controls,
       content: Utils.template(DIALOG_CONTENT, {
         id: Utils.template(ARIA_DESCRIBEDBY, { id: id }),
         skin: skin,
         content: content
       }),
-      buttons: buttons
+      actions: actions
     });
 
     return context;

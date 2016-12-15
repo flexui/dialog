@@ -12,16 +12,16 @@ function create(id, title, content, options) {
     skin: options.skin,
     align: options.align,
     fixed: options.fixed,
-    buttons: options.buttons,
-    handles: [{
+    controls: [{
       title: '关闭',
       value: '×',
       which: 27,
-      className: '{{skin}}-handle-close',
+      className: '{{skin}}-control-close',
       action: function() {
         this.close();
       }
-    }]
+    }],
+    actions: options.actions
   });
 
   dialog.on('close', function() {
@@ -35,7 +35,7 @@ function create(id, title, content, options) {
 
 $('#button').on('click', function() {
   var popup = create('confirm', '弹出消息', 'hello, world', {
-    buttons: [
+    actions: [
       {
         which: 13,
         value: '确认',
@@ -45,7 +45,7 @@ $('#button').on('click', function() {
 
           create('alert', '提示', '你执行了确认操作！', {
             fixed: true,
-            buttons: [{
+            actions: [{
               which: 13,
               value: '确认',
               className: 'ui-button',
@@ -65,7 +65,7 @@ $('#button').on('click', function() {
 
           create('alert', '提示', '你执行了取消操作！', {
             fixed: true,
-            buttons: [{
+            actions: [{
               which: 13,
               value: '确认',
               className: 'ui-button',
