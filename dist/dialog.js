@@ -1391,7 +1391,7 @@
   var HANDLE_ROLE = 'handle';
   var ACTION_ROLE = 'action';
   var ROLE_ATTR = 'data-role';
-  var ACTION_INDEX_ATTR = 'data-action-index';
+  var ACTION_ID_ATTR = 'data-action-id';
   // 弹窗标题
   var DIALOG_TITLE =
     '<div id="{{id}}" class="{{skin}}-caption" title={{title}}>{{value}}</div>';
@@ -1409,11 +1409,11 @@
   // 标题栏操作按钮，例如关闭，最大化，最小化等
   var DIALOG_HANDLE =
     '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
-    ROLE_ATTR + '="' + HANDLE_ROLE + '" ' + ACTION_INDEX_ATTR + '="{{index}}">{{value}}</a>';
+    ROLE_ATTR + '="' + HANDLE_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
   // 弹窗按钮，例如确认，取消等
   var DIALOG_BUTTON =
     '<button type="button" class="{{className}}" title="{{title}}" ' +
-    ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_INDEX_ATTR + '="{{index}}">{{value}}</button>';
+    ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
   // 标题栏操作按钮面板选择器
   var HANDLE_SELECTOR =
     '> .{{skin}}-title > .{{skin}}-handle';
@@ -1647,14 +1647,14 @@
         var current;
         var target = $(this);
         var role = target.attr(ROLE_ATTR);
-        var index = target.attr(ACTION_INDEX_ATTR);
+        var id = target.attr(ACTION_ID_ATTR);
 
         switch (role) {
           case HANDLE_ROLE:
-            current = options.handles[index];
+            current = options.handles[id];
             break;
           case ACTION_ROLE:
-            current = options.buttons[index];
+            current = options.buttons[id];
             break;
         }
 
