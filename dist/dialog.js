@@ -1683,34 +1683,25 @@
      */
     set: function(name, value) {
       var context = this;
-      var refresh = false;
+
+      // 参数不合法不做处理
+      if (!name || !string(name) || !value) {
+        return context;
+      }
 
       switch (name) {
         case 'content':
-          var content = context.content;
-
           // 重新初始化内容
-          context.__initContent(value || content);
-
-          // 是否需要刷新
-          if (content !== context.content) {
-            refresh = true;
-          }
+          context.__initContent(value);
           break;
         case 'options':
-          if (value) {
-            refresh = true;
-
-            // 禁止复写 id
-            delete value.id;
-
-            // 重新初始化参数
-            context.__initOptions(value, context.options);
-          }
+          // 重新初始化参数， id 禁止覆写
+          context.__initOptions(value, context.options);
           break;
       }
 
-      return refresh ? context.__render() : context;
+      // 重新渲染
+      return context.__render();
     },
     /**
      * 移除销毁弹窗
@@ -1722,7 +1713,7 @@
 
       // 销毁不做处理
       if (!context.destroyed) {
-        var id = context.options.id;
+        var id = context.id;
         var resize = context.__resize;
 
         // 调用父类方法
@@ -1734,7 +1725,7 @@
           win.off('resize', resize);
 
           // 删除缓存
-          if (string(id)) {
+          if (DIALOGS[id]) {
             delete DIALOGS[id];
           }
         }
