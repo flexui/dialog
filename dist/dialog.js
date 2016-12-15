@@ -1390,23 +1390,27 @@
   var DIALOGS = {};
   var HANDLE_ROLE = 'handle';
   var ACTION_ROLE = 'action';
+  var ROLE_ATTR = 'data-role';
+  var ACTION_ATTR = 'data-action';
   // 弹窗主体框架
   var DIALOG_FRAME =
     '<div class="{{className}}-title">' +
     '  <div id="{{titleId}}" class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
     '  <div class="{{className}}-handle">' +
-    '    <a href="javascript:;" title="关闭" role="' + HANDLE_ROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
+    '    <a href="javascript:;" title="关闭" ' + ROLE_ATTR + '="' + HANDLE_ROLE + '" ' +
+    ACTION_ATTR + '="close" class="{{className}}-handle-close">×</a>' +
     '  </div>' +
     '</div>' +
     '<div id="{{contentId}}" class="{{className}}-content">{{content}}</div>' +
     '<div class="{{className}}-action">{{buttons}}</div>';
   // 弹窗按钮
   var DIALOG_BUTTON =
-    '<button class="{{className}}" type="button" role="' + ACTION_ROLE + '" title="{{label}}" data-action="{{index}}">{{label}}</button>';
+    '<button class="{{className}}" type="button" title="{{label}}" ' +
+    ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_ATTR + '="{{index}}">{{label}}</button>';
   // 事件委托过滤选择器
   var HANDLE_SELECTOR = '> .{{className}}-title > .{{className}}-handle';
   var ACTION_SELECTOR = '> .{{className}}-action';
-  var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [role], ' + ACTION_SELECTOR + ' [role]';
+  var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [data-role], ' + ACTION_SELECTOR + ' [data-role]';
   // 默认设置
   var DIALOG_SETTINGS = {
     id: null,
@@ -1612,8 +1616,8 @@
       // 绑定事件
       context.__node.on('click', selector, function() {
         var target = $(this);
-        var role = target.attr('role');
-        var action = target.attr('data-action');
+        var role = target.attr(ROLE_ATTR);
+        var action = target.attr(ACTION_ATTR);
 
         switch (role) {
           case HANDLE_ROLE:
