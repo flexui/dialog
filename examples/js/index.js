@@ -25,7 +25,7 @@ function create(id, title, content, options) {
 }
 
 $('#button').on('click', function() {
-  var popup = create('confirm', null, 'hello, world', {
+  var popup = create('confirm', '弹出消息', 'hello, world', {
     buttons: [
       {
         which: 13,

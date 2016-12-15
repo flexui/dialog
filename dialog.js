@@ -31,10 +31,10 @@ var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [data-role], ' + ACTION_SELECTOR + '
 // 默认设置
 var DIALOG_SETTINGS = {
   id: null,
+  title: '',
   buttons: [],
   fixed: false,
   keyboard: true,
-  title: '弹出消息',
   skin: 'ui-dialog',
   align: 'bottom left'
 };
