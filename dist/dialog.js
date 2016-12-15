@@ -1526,6 +1526,29 @@
   }
 
   /**
+   * 渲染按钮和标题栏操作按钮
+   *
+   * @param {String} format
+   * @param {Array} items
+   * @param {String} skin
+   * @returns {String}
+   */
+  function renderActionView(format, items, skin) {
+    var html = '';
+
+    items.forEach(function(item, index) {
+      html += template(format, {
+        className: template(item.className, { skin: skin }),
+        title: item.title || item.value || '',
+        value: item.value || '',
+        index: index
+      });
+    });
+
+    return html;
+  }
+
+  /**
    * 键盘响应函数
    *
    * @param {Number} which
@@ -1581,7 +1604,7 @@
      * 初始化参数
      *
      * @private
-     *@param {Object} options
+     * @param {Object} options
      */
     __initContent: function(content) {
       var context = this;
@@ -1673,8 +1696,6 @@
      * @private
      */
     __render: function() {
-      var handles = '';
-      var buttons = '';
       var context = this;
       var id = context.id;
       var skin = context.className;
@@ -1683,24 +1704,9 @@
       var title = options.title;
 
       // 生成标题栏操作按钮
-      options.handles.forEach(function(handle, index) {
-        handles += template(DIALOG_HANDLE, {
-          className: template(handle.className, { skin: skin }),
-          title: handle.title || handle.value || '',
-          value: handle.value || '',
-          index: index
-        });
-      });
-
+      var handles = renderActionView(DIALOG_HANDLE, options.handles, skin);
       // 生成按钮
-      options.buttons.forEach(function(button, index) {
-        buttons += template(DIALOG_BUTTON, {
-          className: template(button.className, { skin: skin }),
-          title: button.title || button.value || '',
-          value: button.value || '',
-          index: index
-        });
-      });
+      var buttons = renderActionView(DIALOG_BUTTON, options.buttons, skin);
 
       // 设置内容
       context.innerHTML = template(DIALOG_FRAME, {
@@ -1728,6 +1734,7 @@
      * @public
      * @param {String} name
      * @param {String|Object} value
+     * @returns {Dialog}
      */
     set: function(name, value) {
       var context = this;
