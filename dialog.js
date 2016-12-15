@@ -10,12 +10,12 @@ var ACTION_ROLE = 'action';
 // 弹窗主体框架
 var DIALOG_FRAME =
   '<div class="{{className}}-title">' +
-  '  <div class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
+  '  <div id="{{titleId}}" class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
   '  <div class="{{className}}-handle">' +
   '    <a href="javascript:;" title="关闭" role="' + HANDLE_ROLE + '" data-action="close" class="{{className}}-handle-close">×</a>' +
   '  </div>' +
   '</div>' +
-  '<div class="{{className}}-content">{{content}}</div>' +
+  '<div id="{{contentId}}" class="{{className}}-content">{{content}}</div>' +
   '<div class="{{className}}-action">{{buttons}}</div>';
 // 弹窗按钮
 var DIALOG_BUTTON =
@@ -34,6 +34,11 @@ var DIALOG_SETTINGS = {
   skin: 'ui-dialog',
   align: 'bottom left'
 };
+// ID
+var ID = Date.now();
+// WAI-ARIA
+var ARIA_LABELLEDBY = 'dialog-title:{{id}}';
+var ARIA_DESCRIBEDBY = 'dialog-content:{{id}}'
 
 /**
  * Dialog
@@ -62,7 +67,7 @@ export default function Dialog(content, options) {
   var id = options.id;
 
   // 有 id 存在的情况下防止重复弹出
-  if (Utils.string(id)) {
+  if (id && Utils.string(id)) {
     // 获取缓存
     var cache = DIALOGS[id];
 
@@ -78,11 +83,21 @@ export default function Dialog(content, options) {
 
       // 渲染
       return cache.__render();
-    } else {
-      // 缓存 id
-      DIALOGS[id] = context;
     }
+
+    // ID
+    context.id = id;
+    // 缓存 id
+    DIALOGS[id] = context;
+  } else {
+    // ID
+    context.id = String(ID++);
   }
+
+  // 设置 WAI-ARIA
+  context.__node
+    .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: context.id }))
+    .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: context.id }));
 
   // 初始化内容
   context.__initContent(content);
@@ -265,7 +280,9 @@ Utils.inherits(Dialog, Popup, {
       className: context.className,
       title: options.title,
       content: content,
-      buttons: buttons
+      buttons: buttons,
+      titleId: Utils.template(ARIA_LABELLEDBY, { id: context.id }),
+      contentId: Utils.template(ARIA_DESCRIBEDBY, { id: context.id })
     });
 
     return context;
