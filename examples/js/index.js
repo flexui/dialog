@@ -12,7 +12,16 @@ function create(id, title, content, options) {
     skin: options.skin,
     align: options.align,
     fixed: options.fixed,
-    buttons: options.buttons
+    buttons: options.buttons,
+    handles: [{
+      title: '关闭',
+      value: '×',
+      which: 27,
+      className: '{{skin}}-handle-close',
+      action: function() {
+        this.close();
+      }
+    }]
   });
 
   dialog.on('close', function() {

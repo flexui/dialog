@@ -44,20 +44,9 @@ var DELEGATE_SELECTOR =
 var DIALOG_SETTINGS = {
   id: null,
   // 弹出标题， {String|Object}
-  title: {
-    title: '',
-    value: ''
-  },
+  title: '',
   // 标题栏操作按钮
-  handles: [{
-    title: '关闭',
-    value: '×',
-    which: 27,
-    className: '{{skin}}-handle-close',
-    action: function() {
-      this.close();
-    }
-  }],
+  handles: [],
   // 弹窗按钮，参数同 title
   buttons: [],
   fixed: false,
@@ -154,11 +143,6 @@ function keyboard(which, context) {
       button.action.call(context);
     }
   });
-
-  // Esc 按键
-  if (which === 27) {
-    context.close();
-  }
 }
 
 // 按键响应
@@ -231,7 +215,7 @@ Utils.inherits(Dialog, Popup, {
       options.title = {
         title: options.title,
         value: options.title
-      }
+      };
     }
 
     // 格式化其它参数
