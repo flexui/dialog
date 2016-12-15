@@ -131,6 +131,10 @@ export default function Dialog(content, options) {
   context.__render();
 }
 
+Dialog.active = function(){
+  return Layer.active;
+}
+
 /**
  * 键盘响应函数
  *
