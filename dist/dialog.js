@@ -1391,33 +1391,62 @@
   var HANDLE_ROLE = 'handle';
   var ACTION_ROLE = 'action';
   var ROLE_ATTR = 'data-role';
-  var ACTION_ATTR = 'data-action';
+  var ACTION_INDEX_ATTR = 'data-action-index';
+  // 弹窗标题
+  var DIALOG_TITLE =
+    '<div id="{{id}}" class="{{skin}}-caption" title={{title}}>{{value}}</div>';
+  // 弹窗内容
+  var DIALOG_CONTENT =
+    '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
   // 弹窗主体框架
   var DIALOG_FRAME =
-    '<div class="{{className}}-title">' +
-    '  <div id="{{titleId}}" class="{{className}}-caption" title="{{title}}">{{title}}</div>' +
-    '  <div class="{{className}}-handle">' +
-    '    <a href="javascript:;" title="关闭" ' + ROLE_ATTR + '="' + HANDLE_ROLE + '" ' +
-    ACTION_ATTR + '="close" class="{{className}}-handle-close">×</a>' +
-    '  </div>' +
+    '<div class="{{skin}}-title">' +
+    '  {{title}}' +
+    '  <div class="{{skin}}-handle">{{handles}}</div>' +
     '</div>' +
-    '<div id="{{contentId}}" class="{{className}}-content">{{content}}</div>' +
-    '<div class="{{className}}-action">{{buttons}}</div>';
-  // 弹窗按钮
+    '{{content}}' +
+    '<div class="{{skin}}-action">{{buttons}}</div>';
+  // 标题栏操作按钮，例如关闭，最大化，最小化等
+  var DIALOG_HANDLE =
+    '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
+    ROLE_ATTR + '="' + HANDLE_ROLE + '" ' + ACTION_INDEX_ATTR + '="{{index}}">{{value}}</a>';
+  // 弹窗按钮，例如确认，取消等
   var DIALOG_BUTTON =
-    '<button class="{{className}}" type="button" title="{{label}}" ' +
-    ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_ATTR + '="{{index}}">{{label}}</button>';
-  // 事件委托过滤选择器
-  var HANDLE_SELECTOR = '> .{{className}}-title > .{{className}}-handle';
-  var ACTION_SELECTOR = '> .{{className}}-action';
-  var DELEGATE_SELECTOR = HANDLE_SELECTOR + ' [data-role], ' + ACTION_SELECTOR + ' [data-role]';
+    '<button type="button" class="{{className}}" title="{{title}}" ' +
+    ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_INDEX_ATTR + '="{{index}}">{{value}}</button>';
+  // 标题栏操作按钮面板选择器
+  var HANDLE_SELECTOR =
+    '> .{{skin}}-title > .{{skin}}-handle';
+  // 按钮面板
+  var ACTION_SELECTOR =
+    '> .{{skin}}-action';
+  // 事件委托选择器
+  var DELEGATE_SELECTOR =
+    HANDLE_SELECTOR + ' [' + ROLE_ATTR + '], ' + ACTION_SELECTOR + ' [' + ROLE_ATTR + ']';
   // 默认设置
   var DIALOG_SETTINGS = {
     id: null,
-    title: '',
+    // 弹出标题， {String|Object}
+    title: {
+      title: '',
+      value: ''
+    },
+    // 标题栏操作按钮
+    handles: [{
+      title: '关闭',
+      value: '×',
+      which: 27,
+      className: '{{skin}}-handle-close',
+      action: function() {
+        this.close();
+      }
+    }],
+    // 弹窗按钮，参数同 title
     buttons: [],
     fixed: false,
+    // 键盘操作
     keyboard: true,
+    // 皮肤
     skin: 'ui-dialog',
     align: 'bottom left'
   };
@@ -1522,13 +1551,19 @@
     if (active instanceof Dialog && active.options.keyboard) {
       var which = e.which;
       var target = e.target;
-      var selector = template(ACTION_SELECTOR, {
-        className: active.className
-      });
-      var action = active.__node.find(selector)[0];
+      var skin = active.className;
+
+      // 按钮容器
+      var action = active.__node.find(template(ACTION_SELECTOR, { skin: skin }))[0];
+      // 窗体操作框容器
+      var handle = active.__node.find(template(HANDLE_SELECTOR, { skin: skin }))[0];
+
+      // 触发元素是否再容器中
+      var contains = (action && action.contains(target)) ||
+        (handle && handle.contains(target));
 
       // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
-      if (which !== 13 || !action || !action.contains(target)) {
+      if (which !== 13 || !contains) {
         keyboard(which, active);
       }
     }
@@ -1571,8 +1606,19 @@
       // 合并默认参数
       context.options = options = $.extend({}, defaults || DIALOG_SETTINGS, options);
 
-      // 格式化属性
-      options.title = string(options.title) ? options.title : DIALOG_SETTINGS.title;
+      // 格式化标题
+      options.title = options.title || DIALOG_SETTINGS.title;
+
+      // 标题如果是字符串特殊处理
+      if (string(options.title)) {
+        options.title = {
+          title: options.title,
+          value: options.title
+        };
+      }
+
+      // 格式化其它参数
+      options.handles = Array.isArray(options.handles) ? options.handles : DIALOG_SETTINGS.handles;
       options.buttons = Array.isArray(options.buttons) ? options.buttons : DIALOG_SETTINGS.buttons;
       options.skin = options.skin && string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
 
@@ -1593,28 +1639,27 @@
       var options = context.options;
       // 选择器
       var selector = template(DELEGATE_SELECTOR, {
-        className: context.className
+        skin: context.className
       });
 
       // 绑定事件
       context.__node.on('click', selector, function() {
+        var current;
         var target = $(this);
         var role = target.attr(ROLE_ATTR);
-        var action = target.attr(ACTION_ATTR);
+        var index = target.attr(ACTION_INDEX_ATTR);
 
         switch (role) {
           case HANDLE_ROLE:
-            if (action === 'close') {
-              keyboard(27, context);
-            }
+            current = options.handles[index];
             break;
           case ACTION_ROLE:
-            var button = options.buttons ? options.buttons[action] : null;
-
-            if (button && fn(button.action)) {
-              button.action.call(context);
-            }
+            current = options.buttons[index];
             break;
+        }
+
+        if (current && fn(current.action)) {
+          current.action.call(context);
         }
       });
 
@@ -1631,28 +1676,51 @@
      * @private
      */
     __render: function() {
+      var handles = '';
       var buttons = '';
       var context = this;
+      var id = context.id;
+      var skin = context.className;
       var content = context.content;
       var options = context.options;
+      var title = options.title;
+
+      // 生成标题栏操作按钮
+      options.handles.forEach(function(handle, index) {
+        handles += template(DIALOG_HANDLE, {
+          className: template(handle.className, { skin: skin }),
+          title: handle.title || handle.value || '',
+          value: handle.value || '',
+          index: index
+        });
+      });
 
       // 生成按钮
       options.buttons.forEach(function(button, index) {
         buttons += template(DIALOG_BUTTON, {
-          className: button.className,
-          label: button.label,
+          className: template(button.className, { skin: skin }),
+          title: button.title || button.value || '',
+          value: button.value || '',
           index: index
         });
       });
 
       // 设置内容
       context.innerHTML = template(DIALOG_FRAME, {
-        className: context.className,
-        title: options.title,
-        content: content,
-        buttons: buttons,
-        titleId: template(ARIA_LABELLEDBY, { id: context.id }),
-        contentId: template(ARIA_DESCRIBEDBY, { id: context.id })
+        skin: skin,
+        title: template(DIALOG_TITLE, {
+          id: template(ARIA_LABELLEDBY, { id: id }),
+          skin: skin,
+          title: title.title || title.value || '',
+          value: title.value || ''
+        }),
+        handles: handles,
+        content: template(DIALOG_CONTENT, {
+          id: template(ARIA_DESCRIBEDBY, { id: id }),
+          skin: skin,
+          content: content
+        }),
+        buttons: buttons
       });
 
       return context;

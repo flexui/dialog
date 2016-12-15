@@ -29,7 +29,7 @@ $('#button').on('click', function() {
     buttons: [
       {
         which: 13,
-        label: '确认',
+        value: '确认',
         className: 'ui-button',
         action: function() {
           this.close();
@@ -38,7 +38,7 @@ $('#button').on('click', function() {
             fixed: true,
             buttons: [{
               which: 13,
-              label: '确认',
+              value: '确认',
               className: 'ui-button',
               action: function() {
                 this.close();
@@ -49,7 +49,7 @@ $('#button').on('click', function() {
       },
       {
         which: 27,
-        label: '取消',
+        value: '取消',
         className: 'ui-button ui-button-white',
         action: function() {
           this.close();
@@ -58,7 +58,7 @@ $('#button').on('click', function() {
             fixed: true,
             buttons: [{
               which: 13,
-              label: '确认',
+              value: '确认',
               className: 'ui-button',
               action: function() {
                 this.close();
