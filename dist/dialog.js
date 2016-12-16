@@ -1601,9 +1601,10 @@
   }
 
   // 按键响应
-  doc.on('keyup', function(e) {
+  doc.on('keydown', function(e) {
     var active = Layer.active;
 
+    // 保证实例存在且开启了键盘事件
     if (active instanceof Dialog && active.options.keyboard) {
       var which = e.which;
       var target = e.target;
@@ -1615,16 +1616,11 @@
       // 按钮容器
       var actions = dialog.find(template(ACTIONS_SELECTOR, { skin: skin }))[0];
 
-      // 过滤 enter 键触发的事件，防止在特定情况回调两次的情况
-      if (which === 13) {
-        // 触发元素是否再容器中
-        if ((controls && controls.contains(target)) || (actions && actions.contains(target))) {
-          return e.preventDefault();
-        }
+      // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
+      if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
+        // 触发所有键盘绑定动作
+        keyboard(which, active);
       }
-
-      // 执行逻辑
-      keyboard(which, active);
     }
   });
 
