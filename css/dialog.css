@@ -91,6 +91,7 @@
   -webkit-overflow-scrolling: touch;
   margin: 0;
   padding: 0;
+  outline: none;
   background-color: #fff;
   -webkit-background-clip: content;
   background-clip: content;
@@ -114,6 +115,10 @@
 .ui-dialog-show {
   -webkit-animation-name: bounceIn;
   animation-name: bounceIn;
+}
+
+.ui-dialog-focus {
+  border: 1px solid #A0C2F9;
 }
 
 .ui-dialog-close {

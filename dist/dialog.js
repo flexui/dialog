@@ -715,8 +715,27 @@
     context.__node = $(context.node)
       .attr('tabindex', '-1')
       .on('focusin', function() {
-        context.focus();
+        if (context !== Layer.active) {
+          context.focus();
+        }
       });
+  }
+
+  /**
+   * 安全聚焦
+   * @param {HTMLElement} element
+   */
+  function safeFocus(element) {
+    // 防止 iframe 跨域无权限报错
+    // 防止 IE 不可见元素报错
+    try {
+      // ie11 bug: iframe 页面点击会跳到顶部
+      if (!/^iframe$/i.test(element.nodeName)) {
+        element.focus();
+      }
+    } catch (e) {
+      // error
+    }
   }
 
   // 当前得到焦点的实例
@@ -733,7 +752,7 @@
 
       // 重置焦点
       if (anchor && anchor.open) {
-        anchor.__focus(anchor.node);
+        safeFocus(anchor.__node.find('[autofocus]')[0] || anchor.node);
       }
     }
   });
@@ -744,7 +763,7 @@
    * @param {Layer} context
    */
   Layer.cleanActive = function(context) {
-    if (Layer.active === context) {
+    if (!FOCUS_LOCK.count || Layer.active === context) {
       Layer.active = null;
     }
   };
@@ -840,18 +859,17 @@
 
         // 获取焦点
         context.__focus(autofocus);
-
-        // 重新获取激活实例
-        active = Layer.active;
       }
 
       // 非激活状态才做处理
-      if (active !== context) {
+      if (Layer.active !== context) {
         var index = context.zIndex = getZIndex(true);
 
         // 刷新遮罩
         if (context.modal && context !== BACKDROP.anchor) {
+          // 刷新遮罩位置
           BACKDROP.show(context);
+          // 刷新遮罩层级
           BACKDROP.zIndex(index);
         }
 
@@ -904,15 +922,8 @@
      * @param {HTMLElement} element
      */
     __focus: function(element) {
-      // 防止 iframe 跨域无权限报错
-      // 防止 IE 不可见元素报错
-      try {
-        // ie11 bug: iframe 页面点击会跳到顶部
-        if (this.autofocus && !/^iframe$/i.test(element.nodeName)) {
-          element.focus();
-        }
-      } catch (e) {
-        // error
+      if (this.autofocus) {
+        safeFocus(element);
       }
     },
     /**
@@ -946,7 +957,6 @@
     context.__node.css({
       display: 'none',
       position: 'absolute',
-      outline: 0,
       top: 0,
       left: 0
     });
@@ -1054,6 +1064,9 @@
 
       // 聚焦
       context.focus();
+
+      // 设定遮罩层级
+      BACKDROP.zIndex(context.zIndex);
 
       return context;
     },

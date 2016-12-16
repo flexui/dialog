@@ -50,7 +50,6 @@ body {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  outline: none;
 }
 
 .ui-button+.ui-button {
