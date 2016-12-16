@@ -31,7 +31,8 @@ body {
   transition: color .1s ease-out, transform .1s ease-out;
 }
 
-.ui-dialog-control-close:hover {
+.ui-dialog-control-close:hover,
+.ui-dialog-control-close:focus {
   color: #333;
   -webkit-transform: scale(1.16);
   -moz-transform: scale(1.16);
@@ -50,17 +51,22 @@ body {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  outline: none;
+  -webkit-transition: opacity .15s ease-out;
+  -moz-transition: opacity .15s ease-out;
+  transition: opacity .15s ease-out;
 }
 
 .ui-button+.ui-button {
   margin: 0 0 0 9px;
 }
 
-.ui-button:hover {
+.ui-button:hover,
+.ui-button:focus {
   outline: 0;
-  opacity: .8;
-  -ms-filter: alpha(Opacity=80);
-  filter: alpha(Opacity=80);
+  opacity: .66;
+  -ms-filter: alpha(opacity=66);
+  filter: alpha(opacity=66);
   text-decoration: none;
 }
 
@@ -69,9 +75,9 @@ body {
 }
 
 .ui-button-white {
+  color: #000;
   border: 1px solid #dedede;
   background-color: #f1f1f1;
-  color: #333;
 }
 
 label input {

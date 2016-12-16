@@ -732,19 +732,18 @@
 
     var target = e.target;
     var active = Layer.active;
+    var anchor = BACKDROP.anchor;
 
     // 焦点不在弹窗让焦点失去焦点
-    if (active && target !== active.node && !active.node.contains(target)) {
+    if (active && active !== anchor &&
+      target !== active.node && !active.node.contains(target)) {
       active.blur(false);
     }
 
-    if (target === BACKDROP.node[0] || target === FOCUS_LOCK.node[0]) {
-      var anchor = BACKDROP.anchor;
-
-      // 重置焦点
-      if (anchor && anchor.open) {
-        anchor.focus();
-      }
+    // 锁定焦点
+    if (anchor && anchor.open &&
+      (target === BACKDROP.node[0] || target === FOCUS_LOCK.node[0])) {
+      anchor.focus();
     }
   });
 
