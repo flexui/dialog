@@ -713,10 +713,18 @@
     context.destroyed = false;
     context.node = document.createElement('div');
     context.__node = $(context.node)
-      .attr('tabindex', '-1')
+      // 设定 tab 索引
+      .attr('tabindex', '0')
+      // 得到焦点
       .on('focusin', function() {
         if (context !== Layer.active) {
           context.focus();
+        }
+      })
+      // 失去焦点
+      .on('focusout', function() {
+        if (context === Layer.active) {
+          context.blur();
         }
       });
   }
