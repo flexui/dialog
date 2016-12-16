@@ -306,448 +306,6 @@
     });
   }
 
-  var slice = AP.slice;
-
-  function Events() {
-    // Keep this empty so it's easier to inherit from
-    // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
-  }
-
-  Events.prototype = {
-    on: function(name, listener, context) {
-      var self = this;
-      var events = self.__events || (self.__events = {});
-
-      context = arguments.length < 3 ? self : context;
-
-      (events[name] || (events[name] = [])).push({
-        fn: listener,
-        context: context
-      });
-
-      return self;
-    },
-    once: function(name, listener, context) {
-      var self = this;
-
-      function feedback() {
-        self.off(name, feedback);
-        apply(listener, this, arguments);
-      }
-
-      return self.on(name, feedback, context);
-    },
-    emit: function(name) {
-      var context = this;
-      var data = slice.call(arguments, 1);
-      var events = context.__events || (context.__events = {});
-      var listeners = events[name] || [];
-
-      var result;
-      var listener;
-      var returned;
-
-      // emit events
-      for (var i = 0, length = listeners.length; i < length; i++) {
-        listener = listeners[i];
-        result = apply(listener.fn, listener.context, data);
-
-        if (returned !== false) {
-          returned = result;
-        }
-      }
-
-      return returned;
-    },
-    off: function(name, listener, context) {
-      var self = this;
-      var events = self.__events || (self.__events = {});
-      var length = arguments.length;
-
-      switch (length) {
-        case 0:
-          self.__events = {};
-          break;
-        case 1:
-          delete events[name];
-          break;
-        default:
-          if (listener) {
-            var listeners = events[name];
-
-            if (listeners) {
-              context = length < 3 ? self : context;
-              length = listeners.length;
-
-              for (var i = 0; i < length; i++) {
-                if (evts[i].fn === listener && evts[i].fn.context === context) {
-                  listeners.splice(i, 1);
-                  break;
-                }
-              }
-
-              // Remove event from queue to prevent memory leak
-              // Suggested by https://github.com/lazd
-              // Ref: https://github.com/scottcorgan/tiny-emitter/commit/c6ebfaa9bc973b33d110a84a307742b7cf94c953#commitcomment-5024910
-              if (!listeners.length) {
-                delete events[name];
-              }
-            }
-          }
-          break;
-      }
-
-      return self;
-    }
-  };
-
-  // 默认 z-index 值
-  var Z_INDEX = 1024;
-
-  /**
-   * 设置初始 z-index 值
-   *
-   * @export
-   * @param {Number} value
-   * @returns {Number} Z_INDEX
-   */
-  function setZIndex(value) {
-    if (number(value) && value > 0 && value !== Infinity) {
-      Z_INDEX = value;
-    }
-
-    return Z_INDEX;
-  }
-
-  /**
-   * 获取当前 z-index 值
-   *
-   * @export
-   * @param {Boolean} increment 是否自增
-   * @returns {Number} Z_INDEX
-   */
-  function getZIndex(increment) {
-    return increment ? Z_INDEX++ : Z_INDEX;
-  }
-
-  var BACKDROP = {
-    // 遮罩分配
-    alloc: [],
-    // 遮罩节点
-    node: $('<div tabindex="0"></div>').css({
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      userSelect: 'none'
-    }),
-    // 锁定 tab 焦点层
-    shim: $('<div tabindex="0"></div>').css({
-      width: 0,
-      height: 0,
-      opacity: 0
-    }),
-    /**
-     * 设置弹窗层级
-     */
-    zIndex: function(zIndex) {
-      // 最小为 0
-      zIndex = Math.max(0, --zIndex);
-
-      // 设定 z-index
-      BACKDROP.node.css('z-index', zIndex);
-    },
-    /**
-     * 依附实例
-     * @param {Dialog} anchor 定位弹窗实例
-     */
-    attach: function(anchor) {
-      var node = anchor.node;
-      var className = anchor.className + '-backdrop';
-
-      BACKDROP.node
-        .addClass(className)
-        .insertBefore(node);
-
-      BACKDROP.shim.insertAfter(node);
-    },
-    /**
-     * 显示遮罩
-     * @param {Dialog} anchor 定位弹窗实例
-     */
-    show: function(anchor) {
-      var alloc = BACKDROP.alloc;
-      var index = alloc.indexOf(anchor);
-
-      // 不存在或者不在队尾重新刷新遮罩位置和缓存队列
-      if (index === -1 || index !== alloc.length - 1) {
-        // 跟随元素
-        BACKDROP.attach(anchor);
-        // 放置缓存到队尾
-        alloc.push(anchor);
-      }
-    },
-    /**
-     * 隐藏遮罩
-     * @param {Dialog} anchor 定位弹窗实例
-     */
-    hide: function(anchor) {
-      BACKDROP.alloc = BACKDROP.alloc.filter(function(item) {
-        return anchor !== item;
-      });
-
-      var length = BACKDROP.alloc.length;
-
-      if (length === 0) {
-        BACKDROP.node.remove();
-        BACKDROP.shim.remove();
-      } else {
-        anchor = BACKDROP.alloc[length - 1];
-
-        BACKDROP.zIndex(anchor.zIndex);
-        BACKDROP.attach(anchor);
-      }
-    }
-  };
-
-  /**
-   * Layer
-   *
-   * @constructor
-   * @export
-   */
-  function Layer() {
-    var context = this;
-
-    context.destroyed = false;
-    context.node = document.createElement('div');
-    context.__node = $(context.node).attr('tabindex', '-1');
-  }
-
-  // 当前得到焦点的实例
-  Layer.active = null;
-  // 锁屏遮罩
-  Layer.backdrop = BACKDROP;
-
-  // 清理激活状体
-  Layer.cleanActive = function(context) {
-    if (Layer.active === context) {
-      Layer.active = null;
-    }
-  };
-
-  // 锁定 tab 焦点在弹窗内
-  doc.on('focusin', function(e) {
-    var active = Layer.active;
-    var modal = BACKDROP.alloc.length;
-
-    if (active && modal) {
-      var target = e.target;
-      var node = active.node;
-
-      // 锁定焦点
-      if (target !== node && !node.contains(target)) {
-        active.focus();
-      }
-    }
-  });
-
-  // 原型方法
-  inherits(Layer, Events, {
-    /**
-     * 浮层 DOM 元素节点
-     *
-     * @public
-     * @readonly
-     */
-    node: null,
-    /**
-     * 判断对话框是否删除
-     *
-     * @public
-     * @readonly
-     */
-    destroyed: true,
-    /**
-     * 判断对话框是否显示
-     *
-     * @public
-     * @readonly
-     */
-    open: false,
-    /**
-     * 是否自动聚焦
-     *
-     * @public
-     * @property
-     */
-    autofocus: true,
-    /**
-     * 是否是模态窗口
-     *
-     * @public
-     * @property
-     */
-    modal: false,
-    /**
-     * 内部的 HTML 字符串
-     *
-     * @public
-     * @property
-     */
-    innerHTML: '',
-    /**
-     * CSS 类名
-     *
-     * @public
-     * @property
-     */
-    className: 'ui-layer',
-    /**
-     * 构造函数
-     *
-     * @public
-     * @readonly
-     */
-    constructor: Layer,
-    /**
-     * 让浮层获取焦点
-     *
-     * @public
-     */
-    focus: function() {
-      var context = this;
-
-      // 销毁，未打开和已经得到焦点不做处理
-      if (context.destroyed || !context.open) {
-        return context;
-      }
-
-      var node = context.node;
-      var layer = context.__node;
-      var active = Layer.active;
-
-      if (active && active !== context) {
-        active.blur(false);
-      }
-
-      // 检查焦点是否在浮层里面
-      if (!node.contains(context.__getActive())) {
-        var autofocus = layer.find('[autofocus]')[0];
-
-        if (!context.__autofocus && autofocus) {
-          context.__autofocus = true;
-        } else {
-          autofocus = node;
-        }
-
-        // 获取焦点
-        context.__focus(autofocus);
-
-        // 重新获取激活实例
-        active = Layer.active;
-      }
-
-      // 非激活状态才做处理
-      if (active !== context) {
-        var index = context.zIndex = getZIndex(true);
-
-        // 刷新遮罩
-        if (context.modal) {
-          BACKDROP.show(context);
-          BACKDROP.zIndex(index);
-        }
-
-        // 设置弹窗层级
-        layer.css('zIndex', index);
-        // 添加激活类名
-        layer.addClass(context.className + '-focus');
-        // 触发事件
-        context.emit('focus');
-
-        // 保存当前激活实例
-        Layer.active = context;
-      }
-
-      return context;
-    },
-    /**
-     * 让浮层失去焦点。将焦点退还给之前的元素，照顾视力障碍用户
-     *
-     * @public
-     */
-    blur: function() {
-      var context = this;
-
-      // 销毁和未打开不做处理
-      if (context.destroyed || !context.open) {
-        return context;
-      }
-
-      var isBlur = arguments[0];
-
-      // 清理激活状态
-      context.__cleanActive();
-
-      if (isBlur !== false) {
-        context.__focus(context.__activeElement);
-      }
-
-      context.__autofocus = false;
-
-      context.__node.removeClass(context.className + '-focus');
-      context.emit('blur');
-
-      return context;
-    },
-    /**
-     * 对元素安全聚焦
-     *
-     * @private
-     * @param {HTMLElement} element
-     */
-    __focus: function(element) {
-      // 防止 iframe 跨域无权限报错
-      // 防止 IE 不可见元素报错
-      try {
-        // ie11 bug: iframe 页面点击会跳到顶部
-        if (this.autofocus && !/^iframe$/i.test(element.nodeName)) {
-          element.focus();
-        }
-      } catch (e) {
-        // error
-      }
-    },
-    /**
-     * 获取当前焦点的元素
-     *
-     * @private
-     */
-    __getActive: function() {
-      try {
-        // try: ie8~9, iframe #26
-        var activeElement = document.activeElement;
-        var contentDocument = activeElement.contentDocument;
-        var element = contentDocument && contentDocument.activeElement || activeElement;
-
-        return element;
-      } catch (e) {
-        // error
-      }
-    },
-    /**
-     * 清理激活状态
-     *
-     * @private
-     */
-    __cleanActive: function() {
-      if (Layer.active === this) {
-        Layer.active = null;
-      }
-    }
-  });
-
   // 默认样式
   var styles = document.documentElement.style;
 
@@ -906,6 +464,476 @@
     node.on(event, onEnd);
   }
 
+  var slice = AP.slice;
+
+  function Events() {
+    // Keep this empty so it's easier to inherit from
+    // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
+  }
+
+  Events.prototype = {
+    on: function(name, listener, context) {
+      var self = this;
+      var events = self.__events || (self.__events = {});
+
+      context = arguments.length < 3 ? self : context;
+
+      (events[name] || (events[name] = [])).push({
+        fn: listener,
+        context: context
+      });
+
+      return self;
+    },
+    once: function(name, listener, context) {
+      var self = this;
+
+      function feedback() {
+        self.off(name, feedback);
+        apply(listener, this, arguments);
+      }
+
+      return self.on(name, feedback, context);
+    },
+    emit: function(name) {
+      var context = this;
+      var data = slice.call(arguments, 1);
+      var events = context.__events || (context.__events = {});
+      var listeners = events[name] || [];
+
+      var result;
+      var listener;
+      var returned;
+
+      // emit events
+      for (var i = 0, length = listeners.length; i < length; i++) {
+        listener = listeners[i];
+        result = apply(listener.fn, listener.context, data);
+
+        if (returned !== false) {
+          returned = result;
+        }
+      }
+
+      return returned;
+    },
+    off: function(name, listener, context) {
+      var self = this;
+      var events = self.__events || (self.__events = {});
+      var length = arguments.length;
+
+      switch (length) {
+        case 0:
+          self.__events = {};
+          break;
+        case 1:
+          delete events[name];
+          break;
+        default:
+          if (listener) {
+            var listeners = events[name];
+
+            if (listeners) {
+              context = length < 3 ? self : context;
+              length = listeners.length;
+
+              for (var i = 0; i < length; i++) {
+                if (evts[i].fn === listener && evts[i].fn.context === context) {
+                  listeners.splice(i, 1);
+                  break;
+                }
+              }
+
+              // Remove event from queue to prevent memory leak
+              // Suggested by https://github.com/lazd
+              // Ref: https://github.com/scottcorgan/tiny-emitter/commit/c6ebfaa9bc973b33d110a84a307742b7cf94c953#commitcomment-5024910
+              if (!listeners.length) {
+                delete events[name];
+              }
+            }
+          }
+          break;
+      }
+
+      return self;
+    }
+  };
+
+  // 默认 z-index 值
+  var Z_INDEX = 1024;
+
+  /**
+   * 设置初始 z-index 值
+   *
+   * @export
+   * @param {Number} value
+   * @returns {Number} Z_INDEX
+   */
+  function setZIndex(value) {
+    if (number(value) && value > 0 && value !== Infinity) {
+      Z_INDEX = value;
+    }
+
+    return Z_INDEX;
+  }
+
+  /**
+   * 获取当前 z-index 值
+   *
+   * @export
+   * @param {Boolean} increment 是否自增
+   * @returns {Number} Z_INDEX
+   */
+  function getZIndex(increment) {
+    return increment ? Z_INDEX++ : Z_INDEX;
+  }
+
+  var BACKDROP = {
+    // 遮罩分配
+    alloc: [],
+    // 当前依附实例
+    anchor: null,
+    // 遮罩节点
+    node: $('<div tabindex="0"></div>').css({
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      userSelect: 'none'
+    }),
+    /**
+     * 设置弹窗层级
+     */
+    zIndex: function(zIndex) {
+      // 最小为 0
+      zIndex = Math.max(0, --zIndex);
+
+      // 设定 z-index
+      BACKDROP.node.css('z-index', zIndex);
+    },
+    /**
+     * 依附实例
+     * @param {Layer} anchor 定位弹窗实例
+     */
+    attach: function(anchor) {
+      var node = anchor.node;
+      var className = anchor.className + '-backdrop';
+
+      BACKDROP.node
+        .addClass(className)
+        .insertBefore(node);
+
+      // 当前依附实例
+      BACKDROP.anchor = anchor;
+    },
+    /**
+     * 显示遮罩
+     * @param {Layer} anchor 定位弹窗实例
+     */
+    show: function(anchor) {
+      var alloc = BACKDROP.alloc;
+      var index = alloc.indexOf(anchor);
+
+      // 不存在或者不在队尾重新刷新遮罩位置和缓存队列
+      if (index === -1 || index !== alloc.length - 1) {
+        // 跟随元素
+        BACKDROP.attach(anchor);
+        // 放置缓存到队尾
+        alloc.push(anchor);
+      }
+    },
+    /**
+     * 隐藏遮罩
+     * @param {Layer} anchor 定位弹窗实例
+     */
+    hide: function(anchor) {
+      BACKDROP.alloc = BACKDROP.alloc.filter(function(item) {
+        return anchor !== item;
+      });
+
+      var length = BACKDROP.alloc.length;
+
+      if (!length) {
+        BACKDROP.node.remove();
+
+        // 清空当前依附实例
+        BACKDROP.anchor = null;
+      } else {
+        anchor = BACKDROP.alloc[length - 1];
+
+        BACKDROP.zIndex(anchor.zIndex);
+        BACKDROP.attach(anchor);
+      }
+    }
+  };
+
+  // 焦点锁定
+  var FOCUS_LOCK = {
+    // 要锁定的个数
+    count: 0,
+    // 锁定层
+    node: $('<div tabindex="0"></div>').css({
+      width: 0,
+      height: 0,
+      opacity: 0
+    }),
+    /**
+     * 添加焦点锁定层
+     *
+     * @param {Layer} anchor
+     */
+    inc: function(anchor) {
+      ++FOCUS_LOCK.count;
+
+      FOCUS_LOCK.node
+        .insertAfter(anchor.node);
+    },
+    /**
+     * 少数焦点锁定
+     */
+    dec: function() {
+      FOCUS_LOCK.count = Math.max(0, --FOCUS_LOCK.count);
+
+      if (!FOCUS_LOCK.count) {
+        FOCUS_LOCK.node.remove();
+      }
+    }
+  };
+
+  /**
+   * Layer
+   *
+   * @constructor
+   * @export
+   */
+  function Layer() {
+    var context = this;
+
+    context.destroyed = false;
+    context.node = document.createElement('div');
+    context.__node = $(context.node)
+      .attr('tabindex', '-1')
+      .on('focusin', function() {
+        context.focus();
+      });
+  }
+
+  // 当前得到焦点的实例
+  Layer.active = null;
+
+  // 锁定 tab 焦点在弹窗内
+  doc.on('focusin', function(e) {
+    e.preventDefault();
+
+    var target = e.target;
+
+    if (target === BACKDROP.node[0] || target === FOCUS_LOCK.node[0]) {
+      var anchor = BACKDROP.anchor;
+
+      // 重置焦点
+      if (anchor && anchor.open) {
+        anchor.__focus(anchor.node);
+      }
+    }
+  });
+
+  /**
+   * 清理激活状态
+   *
+   * @param {Layer} context
+   */
+  Layer.cleanActive = function(context) {
+    if (Layer.active === context) {
+      Layer.active = null;
+    }
+  };
+
+  // 原型方法
+  inherits(Layer, Events, {
+    /**
+     * 浮层 DOM 元素节点
+     *
+     * @public
+     * @readonly
+     */
+    node: null,
+    /**
+     * 判断对话框是否删除
+     *
+     * @public
+     * @readonly
+     */
+    destroyed: true,
+    /**
+     * 判断对话框是否显示
+     *
+     * @public
+     * @readonly
+     */
+    open: false,
+    /**
+     * 是否自动聚焦
+     *
+     * @public
+     * @property
+     */
+    autofocus: true,
+    /**
+     * 是否是模态窗口
+     *
+     * @public
+     * @property
+     */
+    modal: false,
+    /**
+     * 内部的 HTML 字符串
+     *
+     * @public
+     * @property
+     */
+    innerHTML: '',
+    /**
+     * CSS 类名
+     *
+     * @public
+     * @property
+     */
+    className: 'ui-layer',
+    /**
+     * 构造函数
+     *
+     * @public
+     * @readonly
+     */
+    constructor: Layer,
+    /**
+     * 让浮层获取焦点
+     *
+     * @public
+     */
+    focus: function() {
+      var context = this;
+
+      // 销毁，未打开和已经得到焦点不做处理
+      if (context.destroyed || !context.open) {
+        return context;
+      }
+
+      var node = context.node;
+      var layer = context.__node;
+      var active = Layer.active;
+
+      if (active && active !== context) {
+        active.blur(false);
+      }
+
+      // 检查焦点是否在浮层里面
+      if (!node.contains(context.__getActive())) {
+        var autofocus = layer.find('[autofocus]')[0];
+
+        if (!context.__autofocus && autofocus) {
+          context.__autofocus = true;
+        } else {
+          autofocus = node;
+        }
+
+        // 获取焦点
+        context.__focus(autofocus);
+
+        // 重新获取激活实例
+        active = Layer.active;
+      }
+
+      // 非激活状态才做处理
+      if (active !== context) {
+        var index = context.zIndex = getZIndex(true);
+
+        // 刷新遮罩
+        if (context.modal && context !== BACKDROP.anchor) {
+          BACKDROP.show(context);
+          BACKDROP.zIndex(index);
+        }
+
+        // 设置弹窗层级
+        layer.css('zIndex', index);
+        // 添加激活类名
+        layer.addClass(context.className + '-focus');
+        // 触发事件
+        context.emit('focus');
+
+        // 保存当前激活实例
+        Layer.active = context;
+      }
+
+      return context;
+    },
+    /**
+     * 让浮层失去焦点。将焦点退还给之前的元素，照顾视力障碍用户
+     *
+     * @public
+     */
+    blur: function() {
+      var context = this;
+
+      // 销毁和未打开不做处理
+      if (context.destroyed || !context.open) {
+        return context;
+      }
+
+      var isBlur = arguments[0];
+
+      // 清理激活状态
+      Layer.cleanActive(context);
+
+      if (isBlur !== false) {
+        context.__focus(context.__activeElement);
+      }
+
+      context.__autofocus = false;
+
+      context.__node.removeClass(context.className + '-focus');
+      context.emit('blur');
+
+      return context;
+    },
+    /**
+     * 对元素安全聚焦
+     *
+     * @private
+     * @param {HTMLElement} element
+     */
+    __focus: function(element) {
+      // 防止 iframe 跨域无权限报错
+      // 防止 IE 不可见元素报错
+      try {
+        // ie11 bug: iframe 页面点击会跳到顶部
+        if (this.autofocus && !/^iframe$/i.test(element.nodeName)) {
+          element.focus();
+        }
+      } catch (e) {
+        // error
+      }
+    },
+    /**
+     * 获取当前焦点的元素
+     *
+     * @private
+     */
+    __getActive: function() {
+      try {
+        // try: ie8~9, iframe #26
+        var activeElement = document.activeElement;
+        var contentDocument = activeElement.contentDocument;
+        var element = contentDocument && contentDocument.activeElement || activeElement;
+
+        return element;
+      } catch (e) {
+        // error
+      }
+    }
+  });
+
   // 对齐方式拆分正则
   var ALIGNSPLIT_RE = /\s+/;
 
@@ -989,6 +1017,8 @@
 
         // 弹窗添加到文档树
         popup.appendTo(document.body);
+        // 焦点锁定层
+        FOCUS_LOCK.inc(context);
 
         // 切换ready状态
         context.__ready = true;
@@ -1005,7 +1035,7 @@
 
       // 显示遮罩
       if (context.modal) {
-        Layer.backdrop.show(context);
+        BACKDROP.show(context);
         popup.addClass(context.className + '-modal');
       }
 
@@ -1041,7 +1071,7 @@
 
         // 关闭遮罩
         if (context.open) {
-          Layer.backdrop.hide(context);
+          BACKDROP.hide(context);
         }
 
         // 移除类名
@@ -1110,7 +1140,7 @@
 
         // 隐藏遮罩
         if (context.modal) {
-          Layer.backdrop.hide(context);
+          BACKDROP.hide(context);
         }
 
         // 切换打开状态
@@ -1140,12 +1170,15 @@
       }
 
       // 清理激活项
-      context.__cleanActive();
+      Layer.cleanActive(context);
 
       // 隐藏遮罩
       if (context.open && context.modal) {
-        Layer.backdrop.hide(context);
+        BACKDROP.hide(context);
       }
+
+      // 焦点锁定层
+      FOCUS_LOCK.dec(context);
 
       // 移除事件绑定并从 DOM 中移除节点
       context.__node
@@ -1461,9 +1494,6 @@
       return new Dialog(content, options);
     }
 
-    // 调用父类
-    Popup.call(context);
-
     // 重新获取配置
     options = options || {};
 
@@ -1479,14 +1509,10 @@
       if (cache) {
         // 移除所有绑定的事件
         cache.off();
+        cache.__node.off();
 
-        // 初始化内容
-        cache.__initContent(content);
-        // 初始化参数
-        cache.__initOptions(options);
-
-        // 渲染
-        return cache.__render();
+        // 初始化
+        return cache.__init(content, options);
       }
 
       // ID
@@ -1495,22 +1521,19 @@
       DIALOGS[id] = context;
     } else {
       // ID
-      context.id = String(ID++);
+      context.id = id = String(ID++);
     }
+
+    // 调用父类
+    Popup.call(context);
 
     // 设置 WAI-ARIA
     context.__node
-      .attr('aria-labelledby', template(ARIA_LABELLEDBY, { id: context.id }))
-      .attr('aria-describedby', template(ARIA_DESCRIBEDBY, { id: context.id }));
+      .attr('aria-labelledby', template(ARIA_LABELLEDBY, { id: id }))
+      .attr('aria-describedby', template(ARIA_DESCRIBEDBY, { id: id }));
 
-    // 初始化内容
-    context.__initContent(content);
-    // 初始化参数
-    context.__initOptions(options);
-    // 初始化事件
-    context.__initEvents();
-    // 渲染
-    context.__render();
+    // 初始化
+    context.__init(content, options);
   }
 
   /**
@@ -1597,6 +1620,18 @@
 
   // 原型方法
   inherits(Dialog, Popup, {
+    __init: function(content, options) {
+      var context = this;
+
+      // 初始化内容
+      context.__initContent(content);
+      // 初始化参数
+      context.__initOptions(options);
+      // 初始化事件
+      context.__initEvents();
+      // 渲染
+      return context.__render();
+    },
     /**
      * 构造函数
      * @public

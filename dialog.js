@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import Layer from '@flexui/layer';
 import Popup from './lib/popup.js';
+import { Layer } from '@flexui/layer';
 import * as Utils from '@flexui/utils';
 
 // 变量
@@ -82,9 +82,6 @@ export default function Dialog(content, options) {
     return new Dialog(content, options);
   }
 
-  // 调用父类
-  Popup.call(context);
-
   // 重新获取配置
   options = options || {};
 
@@ -100,14 +97,10 @@ export default function Dialog(content, options) {
     if (cache) {
       // 移除所有绑定的事件
       cache.off();
+      cache.__node.off();
 
-      // 初始化内容
-      cache.__initContent(content);
-      // 初始化参数
-      cache.__initOptions(options);
-
-      // 渲染
-      return cache.__render();
+      // 初始化
+      return cache.__init(content, options);
     }
 
     // ID
@@ -116,22 +109,19 @@ export default function Dialog(content, options) {
     DIALOGS[id] = context;
   } else {
     // ID
-    context.id = String(ID++);
+    context.id = id = String(ID++);
   }
+
+  // 调用父类
+  Popup.call(context);
 
   // 设置 WAI-ARIA
   context.__node
-    .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: context.id }))
-    .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: context.id }));
+    .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: id }))
+    .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: id }));
 
-  // 初始化内容
-  context.__initContent(content);
-  // 初始化参数
-  context.__initOptions(options);
-  // 初始化事件
-  context.__initEvents();
-  // 渲染
-  context.__render();
+  // 初始化
+  context.__init(content, options);
 }
 
 /**
@@ -218,6 +208,18 @@ var POPUP_REMOVE = Popup.prototype.remove;
 
 // 原型方法
 Utils.inherits(Dialog, Popup, {
+  __init: function(content, options) {
+    var context = this;
+
+    // 初始化内容
+    context.__initContent(content);
+    // 初始化参数
+    context.__initOptions(options);
+    // 初始化事件
+    context.__initEvents();
+    // 渲染
+    return context.__render();
+  },
   /**
    * 构造函数
    * @public
