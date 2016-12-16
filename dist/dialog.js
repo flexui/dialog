@@ -1452,18 +1452,21 @@
     CONTROLS_SELECTOR + ' [' + ROLE_ATTR + '], ' + ACTIONS_SELECTOR + ' [' + ROLE_ATTR + ']';
   // 默认设置
   var DIALOG_SETTINGS = {
+    // 弹窗标识，设置后可以防止重复弹窗
     id: null,
     // 弹出标题， {String|Object}
-    title: '',
-    // 标题栏操作按钮
+    title: { title: '', value: '' },
+    // 标题栏操作按钮 { title, value, which, action }
     controls: [],
-    // 弹窗按钮，参数同 title
+    // 弹窗按钮，参数同 controls
     actions: [],
+    // 是否 fixed 定位
     fixed: false,
     // 键盘操作
     keyboard: true,
     // 皮肤
     skin: 'ui-dialog',
+    // 定位方式
     align: 'bottom left'
   };
   // ID
@@ -1532,21 +1535,6 @@
   }
 
   /**
-   * 执行动作回调
-   *
-   * @param items
-   * @param which
-   * @param context
-   */
-  function execAction(items, which, context) {
-    items.forEach(function(item) {
-      if (item.which === which && fn(item.action)) {
-        item.action.call(context, item);
-      }
-    });
-  }
-
-  /**
    * 渲染按钮和标题栏操作按钮
    *
    * @param {String} format
@@ -1555,10 +1543,11 @@
    * @returns {String}
    */
   function renderActionView(format, items, skin) {
-    var html = '';
+    var view = '';
 
+    // 遍历配置数组
     items.forEach(function(item, index) {
-      html += template(format, {
+      view += template(format, {
         className: template(item.className, { skin: skin }),
         title: item.title || item.value || '',
         value: item.value || '',
@@ -1566,20 +1555,25 @@
       });
     });
 
-    return html;
+    return view;
   }
 
   /**
-   * 键盘响应函数
+   * 执行动作回调
    *
-   * @param {Number} which
+   * @param {Array} items
+   * @param {Event} event
    * @param {Dialog} context
    */
-  function keyboard(which, context) {
-    var options = context.options;
+  function execAction(items, event, context) {
+    var which = event.which;
 
-    execAction(options.controls, which, context);
-    execAction(options.actions, which, context);
+    // 遍历执行动作回掉
+    items.forEach(function(item) {
+      if (item.which === which && fn(item.action)) {
+        item.action.call(context, event, item);
+      }
+    });
   }
 
   // 按键响应
@@ -1600,8 +1594,11 @@
 
       // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
       if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
+        var options = active.options;
+
         // 触发所有键盘绑定动作
-        keyboard(which, active);
+        execAction(options.controls, event, active);
+        execAction(options.actions, event, active);
       }
     }
   });
@@ -1656,20 +1653,21 @@
       context.options = options = $.extend({}, defaults || DIALOG_SETTINGS, options);
 
       // 格式化标题
-      options.title = options.title || DIALOG_SETTINGS.title;
+      var title = options.title;
+      var controls = options.controls;
+      var actions = options.actions;
+      var skin = options.skin;
 
       // 标题如果是字符串特殊处理
-      if (string(options.title)) {
-        options.title = {
-          title: options.title,
-          value: options.title
-        };
+      if (string(title)) {
+        title = { title: title, value: title };
       }
 
-      // 格式化其它参数
-      options.controls = Array.isArray(options.controls) ? options.controls : DIALOG_SETTINGS.controls;
-      options.actions = Array.isArray(options.actions) ? options.actions : DIALOG_SETTINGS.actions;
-      options.skin = options.skin && string(options.skin) ? options.skin : DIALOG_SETTINGS.skin;
+      // 格式化参数
+      options.title = title || DIALOG_SETTINGS.title;
+      options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
+      options.actions = Array.isArray(actions) ? actions : DIALOG_SETTINGS.actions;
+      options.skin = skin && string(skin) ? skin : DIALOG_SETTINGS.skin;
 
       // 设置属性
       context.fixed = options.fixed;
@@ -1692,7 +1690,7 @@
       });
 
       // 绑定事件
-      context.__node.on('click', selector, function() {
+      context.__node.on('click', selector, function(e) {
         var current;
         var target = $(this);
         var role = target.attr(ROLE_ATTR);
@@ -1707,8 +1705,9 @@
             break;
         }
 
+        // 执行回掉
         if (current && fn(current.action)) {
-          current.action.call(context);
+          current.action.call(context, e, current);
         }
       });
 
@@ -1732,9 +1731,8 @@
       var options = context.options;
       var title = options.title;
 
-      // 生成标题栏操作按钮
-      var controls = renderActionView(DIALOG_CONTROL, options.controls, skin);
       // 生成按钮
+      var controls = renderActionView(DIALOG_CONTROL, options.controls, skin);
       var actions = renderActionView(DIALOG_ACTION, options.actions, skin);
 
       // 设置内容
