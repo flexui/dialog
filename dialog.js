@@ -180,7 +180,7 @@ Utils.doc.on('keydown', function(e) {
   var active = Layer.active;
 
   // 保证实例存在且开启了键盘事件
-  if (active instanceof Dialog && active.options.keyboard) {
+  if (active instanceof Dialog && !active.destroyed && active.options.keyboard) {
     var which = e.which;
     var target = e.target;
     var dialog = active.__node;
