@@ -4,6 +4,8 @@ var modal = document.getElementById('modal');
 var unique = document.getElementById('unique');
 var remove = document.getElementById('remove');
 
+var dialogs = [];
+
 function create(id, title, content, options) {
   options = options || {};
 
@@ -44,7 +46,7 @@ $('#button').on('click', function() {
         action: function() {
           this.close();
 
-          create('alert', '提示', '你执行了确认操作！', {
+          dialogs.push(create('alert', '提示', '你执行了确认操作！', {
             fixed: true,
             actions: [{
               which: 13,
@@ -54,7 +56,7 @@ $('#button').on('click', function() {
                 this.close();
               }
             }]
-          }).showModal();
+          }).showModal());
         }
       },
       {
@@ -64,7 +66,7 @@ $('#button').on('click', function() {
         action: function() {
           this.close();
 
-          create('alert', '提示', '你执行了取消操作！', {
+          dialogs.push(create('alert', '提示', '你执行了取消操作！', {
             fixed: true,
             actions: [{
               which: 13,
@@ -74,11 +76,13 @@ $('#button').on('click', function() {
                 this.close();
               }
             }]
-          }).showModal();
+          }).showModal());
         }
       }
     ]
   });
+
+  dialogs.push(popup);
 
   if (!follow.checked) {
     if (!modal.checked) {
@@ -93,4 +97,10 @@ $('#button').on('click', function() {
       popup.showModal(this);
     }
   }
+});
+
+$('#destroy').on('click', function() {
+  dialogs.forEach(function(dialog) {
+    dialog.remove();
+  });
 });
