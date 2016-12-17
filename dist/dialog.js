@@ -1472,8 +1472,8 @@
   // ID
   var ID = Date.now();
   // WAI-ARIA
-  var ARIA_LABELLEDBY = 'dialog-title:{{id}}';
-  var ARIA_DESCRIBEDBY = 'dialog-content:{{id}}';
+  var ARIA_LABELLEDBY = 'aria-title:{{id}}';
+  var ARIA_DESCRIBEDBY = 'aria-content:{{id}}';
 
   /**
    * Dialog
@@ -1817,7 +1817,6 @@
     }
   });
 
-  // 对外接口
   var FlexUI = {
     dialog: Dialog,
     zIndex: function(value) {
