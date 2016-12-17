@@ -1,6 +1,7 @@
 var __window = $(window);
 var follow = document.getElementById('follow');
 var modal = document.getElementById('modal');
+var unique = document.getElementById('unique');
 var remove = document.getElementById('remove');
 
 function create(id, title, content, options) {
@@ -34,7 +35,7 @@ function create(id, title, content, options) {
 }
 
 $('#button').on('click', function() {
-  var popup = create('confirm', '弹出消息', 'hello, world', {
+  var popup = create(unique.checked ? 'confirm' : null, '弹出消息', 'hello, world', {
     actions: [
       {
         which: 13,
