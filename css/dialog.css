@@ -140,12 +140,12 @@
   text-overflow: ellipsis;
 }
 
-.ui-dialog-title::before {
+.ui-dialog-title:before {
   content: "[√] ";
   color: #B8B8B8;
 }
 
-.ui-dialog-focus .ui-dialog-title::before {
+.ui-dialog-focus .ui-dialog-title:before {
   content: "[√] ";
   color: #006400;
 }
