@@ -100,10 +100,14 @@ export default function Dialog(content, options) {
     if (cache) {
       // 移除所有绑定的事件
       cache.off();
-      cache.__node.off();
 
-      // 初始化
-      return cache.__init(content, options);
+      // 初始化内容
+      cache.__initContent(content);
+      // 初始化参数
+      cache.__initOptions(options);
+
+      // 渲染内容
+      return cache.__render();
     }
 
     // ID
@@ -123,8 +127,14 @@ export default function Dialog(content, options) {
     .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: id }))
     .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: id }));
 
-  // 初始化
-  context.__init(content, options);
+  // 初始化内容
+  context.__initContent(content);
+  // 初始化参数
+  context.__initOptions(options);
+  // 初始化事件
+  context.__initEvents();
+  // 渲染内容
+  context.__render();
 }
 
 /**
@@ -190,8 +200,8 @@ Utils.doc.on('keydown', function(e) {
       var options = active.options;
 
       // 触发所有键盘绑定动作
-      execAction(options.controls, event, active);
-      execAction(options.actions, event, active);
+      execAction(options.controls, e, active);
+      execAction(options.actions, e, active);
     }
   }
 });
@@ -201,18 +211,6 @@ var POPUP_REMOVE = Popup.prototype.remove;
 
 // 原型方法
 Utils.inherits(Dialog, Popup, {
-  __init: function(content, options) {
-    var context = this;
-
-    // 初始化内容
-    context.__initContent(content);
-    // 初始化参数
-    context.__initOptions(options);
-    // 初始化事件
-    context.__initEvents();
-    // 渲染
-    return context.__render();
-  },
   /**
    * 构造函数
    * @public
