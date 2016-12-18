@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import Popup from './lib/popup.js';
-import { Layer } from '@flexui/layer';
+import Layer from '@flexui/layer';
 import * as Utils from '@flexui/utils';
 
 // 变量

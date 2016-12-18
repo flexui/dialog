@@ -308,169 +308,6 @@
     });
   }
 
-  // 默认样式
-  var styles = document.documentElement.style;
-
-  // animationend 映射表
-  var ANIMATIONEND_EVENTS = {
-    animation: 'animationend',
-    WebkitAnimation: 'webkitAnimationEnd',
-    MozAnimation: 'mozAnimationEnd',
-    OAnimation: 'oAnimationEnd',
-    msAnimation: 'MSAnimationEnd',
-    KhtmlAnimation: 'khtmlAnimationEnd'
-  };
-  // transition 映射表
-  var TRANSITIONEND_EVENTS = {
-    transition: 'transitionend',
-    WebkitTransition: 'webkitTransitionEnd',
-    MozTransition: 'mozTransitionEnd',
-    OTransition: 'oTransitionEnd',
-    msTransition: 'MSTransitionEnd',
-    KhtmlTransition: 'khtmlTransitionEnd'
-  };
-
-  /**
-   * detector
-   * @param {Object} maps
-   * @returns
-   */
-  function detector(maps) {
-    for (var property in maps) {
-      if (maps.hasOwnProperty(property) && styles[property] !== undefined) {
-        return property;
-      }
-    }
-  }
-
-  // animation
-  var ANIMATION = detector(ANIMATIONEND_EVENTS);
-  // transition
-  var TRANSITION = detector(TRANSITIONEND_EVENTS);
-
-  /**
-   * toMs
-   *
-   * @param {String} value
-   * @returns
-   */
-  function toMs(value) {
-    return Number(value.slice(0, -1)) * 1000;
-  }
-
-  /**
-   * getTimeout
-   *
-   * @param {Array} delays
-   * @param {Array} durations
-   * @returns
-   */
-  function getTimeout(delays, durations) {
-    /* istanbul ignore next */
-    while (delays.length < durations.length) {
-      delays = delays.concat(delays);
-    }
-
-    // 获取最大时长
-    return Math.max.apply(null, durations.map(function(duration, i) {
-      return toMs(duration) + toMs(delays[i]);
-    }));
-  }
-
-  /**
-   * toArray
-   *
-   * @param {any} value
-   * @returns {Array}
-   */
-  function toArray(value) {
-    return value ? value.split(', ') : [];
-  }
-
-  /**
-   * getEffectsInfo
-   *
-   * @param {HTMLElement} element
-   * @returns
-   */
-  function getEffectsInfo(element) {
-    var styles = getComputedStyle(element);
-    var transitioneDelays = toArray(styles.getPropertyValue(TRANSITION + '-delay'));
-    var transitionDurations = toArray(styles.getPropertyValue(TRANSITION + '-duration'));
-    var transitionTimeout = getTimeout(transitioneDelays, transitionDurations);
-    var animationDelays = toArray(styles.getPropertyValue(ANIMATION + '-delay'));
-    var animationDurations = toArray(styles.getPropertyValue(ANIMATION + '-duration'));
-    var animationTimeout = getTimeout(animationDelays, animationDurations);
-
-    var effect;
-    var count;
-    var timeout;
-
-    timeout = Math.max(transitionTimeout, animationTimeout);
-    effect = timeout > 0 ? (transitionTimeout > animationTimeout ? TRANSITION : ANIMATION) : null;
-    count = effect ? (effect === TRANSITION ? transitionDurations.length : animationDurations.length) : 0;
-
-    return {
-      effect: effect,
-      count: count,
-      timeout: timeout
-    };
-  }
-
-  /**
-   * effectsEnd
-   *
-   * @export
-   * @param {jQueryElement} node
-   * @param {Function} callback
-   * @see https://github.com/vuejs/vue/blob/dev/src/platforms/web/runtime/transition-util.js
-   */
-  function effectsEnd(node, callback) {
-    // 不支持动画
-    if (!ANIMATION && !TRANSITION) {
-      return callback();
-    }
-
-    var element = node[0];
-    var info = getEffectsInfo(element);
-    var effect = info.effect;
-
-    // 没有动画
-    if (!effect) {
-      return callback();
-    }
-
-    var ended = 0;
-    var count = info.count;
-    var timeout = info.timeout;
-    var event = effect === TRANSITION ?
-      TRANSITIONEND_EVENTS[TRANSITION] :
-      ANIMATIONEND_EVENTS[ANIMATION];
-
-    var end = function() {
-      node.off(event, onEnd);
-      callback();
-    };
-
-    var onEnd = function(e) {
-      if (e.target === element) {
-        if (++ended >= count) {
-          end();
-        }
-      }
-    };
-
-    // 防止有些动画没有触发结束事件
-    setTimeout(function() {
-      if (ended < count) {
-        end();
-      }
-    }, timeout + 1);
-
-    // 监听动画完成事件
-    node.on(event, onEnd);
-  }
-
   var slice = AP.slice;
 
   function Events() {
@@ -937,8 +774,199 @@
       } catch (e) {
         // error
       }
+    },
+    /**
+     * 智能遮罩操作方法
+     *
+     * @private
+     * @param {String} method
+     * @param {Any} value
+     */
+    __backdrop: function(method, value) {
+      var context = this;
+
+      switch (method) {
+        case 'show':
+        case 'hide':
+          // 遮罩层
+          if (context.modal) {
+            BACKDROP[method](context);
+          }
+
+          // 焦点锁定层
+          TAB_LOCK[method](context);
+          break;
+        case 'z-index':
+          if (context.modal) {
+            BACKDROP.zIndex(value);
+          }
+          break;
+      }
     }
   });
+
+  // 默认样式
+  var styles = document.documentElement.style;
+
+  // animationend 映射表
+  var ANIMATIONEND_EVENTS = {
+    animation: 'animationend',
+    WebkitAnimation: 'webkitAnimationEnd',
+    MozAnimation: 'mozAnimationEnd',
+    OAnimation: 'oAnimationEnd',
+    msAnimation: 'MSAnimationEnd',
+    KhtmlAnimation: 'khtmlAnimationEnd'
+  };
+  // transition 映射表
+  var TRANSITIONEND_EVENTS = {
+    transition: 'transitionend',
+    WebkitTransition: 'webkitTransitionEnd',
+    MozTransition: 'mozTransitionEnd',
+    OTransition: 'oTransitionEnd',
+    msTransition: 'MSTransitionEnd',
+    KhtmlTransition: 'khtmlTransitionEnd'
+  };
+
+  /**
+   * detector
+   * @param {Object} maps
+   * @returns
+   */
+  function detector(maps) {
+    for (var property in maps) {
+      if (maps.hasOwnProperty(property) && styles[property] !== undefined) {
+        return property;
+      }
+    }
+  }
+
+  // animation
+  var ANIMATION = detector(ANIMATIONEND_EVENTS);
+  // transition
+  var TRANSITION = detector(TRANSITIONEND_EVENTS);
+
+  /**
+   * toMs
+   *
+   * @param {String} value
+   * @returns
+   */
+  function toMs(value) {
+    return Number(value.slice(0, -1)) * 1000;
+  }
+
+  /**
+   * getTimeout
+   *
+   * @param {Array} delays
+   * @param {Array} durations
+   * @returns
+   */
+  function getTimeout(delays, durations) {
+    /* istanbul ignore next */
+    while (delays.length < durations.length) {
+      delays = delays.concat(delays);
+    }
+
+    // 获取最大时长
+    return Math.max.apply(null, durations.map(function(duration, i) {
+      return toMs(duration) + toMs(delays[i]);
+    }));
+  }
+
+  /**
+   * toArray
+   *
+   * @param {any} value
+   * @returns {Array}
+   */
+  function toArray(value) {
+    return value ? value.split(', ') : [];
+  }
+
+  /**
+   * getEffectsInfo
+   *
+   * @param {HTMLElement} element
+   * @returns
+   */
+  function getEffectsInfo(element) {
+    var styles = getComputedStyle(element);
+    var transitioneDelays = toArray(styles.getPropertyValue(TRANSITION + '-delay'));
+    var transitionDurations = toArray(styles.getPropertyValue(TRANSITION + '-duration'));
+    var transitionTimeout = getTimeout(transitioneDelays, transitionDurations);
+    var animationDelays = toArray(styles.getPropertyValue(ANIMATION + '-delay'));
+    var animationDurations = toArray(styles.getPropertyValue(ANIMATION + '-duration'));
+    var animationTimeout = getTimeout(animationDelays, animationDurations);
+
+    var effect;
+    var count;
+    var timeout;
+
+    timeout = Math.max(transitionTimeout, animationTimeout);
+    effect = timeout > 0 ? (transitionTimeout > animationTimeout ? TRANSITION : ANIMATION) : null;
+    count = effect ? (effect === TRANSITION ? transitionDurations.length : animationDurations.length) : 0;
+
+    return {
+      effect: effect,
+      count: count,
+      timeout: timeout
+    };
+  }
+
+  /**
+   * effectsEnd
+   *
+   * @export
+   * @param {jQueryElement} node
+   * @param {Function} callback
+   * @see https://github.com/vuejs/vue/blob/dev/src/platforms/web/runtime/transition-util.js
+   */
+  function effectsEnd(node, callback) {
+    // 不支持动画
+    if (!ANIMATION && !TRANSITION) {
+      return callback();
+    }
+
+    var element = node[0];
+    var info = getEffectsInfo(element);
+    var effect = info.effect;
+
+    // 没有动画
+    if (!effect) {
+      return callback();
+    }
+
+    var ended = 0;
+    var count = info.count;
+    var timeout = info.timeout;
+    var event = effect === TRANSITION ?
+      TRANSITIONEND_EVENTS[TRANSITION] :
+      ANIMATIONEND_EVENTS[ANIMATION];
+
+    var end = function() {
+      node.off(event, onEnd);
+      callback();
+    };
+
+    var onEnd = function(e) {
+      if (e.target === element) {
+        if (++ended >= count) {
+          end();
+        }
+      }
+    };
+
+    // 防止有些动画没有触发结束事件
+    setTimeout(function() {
+      if (ended < count) {
+        end();
+      }
+    }, timeout + 1);
+
+    // 监听动画完成事件
+    node.on(event, onEnd);
+  }
 
   // 对齐方式拆分正则
   var ALIGNSPLIT_RE = /\s+/;
@@ -1045,14 +1073,13 @@
       // 弹窗添加到文档树
       popup.appendTo(document.body);
 
-      // 显示遮罩
+      // 添加模态类名
       if (context.modal) {
-        BACKDROP.show(context);
         popup.addClass(context.className + POPUP_CLASS_MODAL);
       }
 
-      // 焦点锁定层
-      TAB_LOCK.show(context);
+      // 智能遮罩层显示
+      context.__backdrop('show');
 
       // 显示浮层
       popup.show();
@@ -1066,10 +1093,8 @@
       // 聚焦
       context.focus();
 
-      // 设定遮罩层级
-      if (context.modal) {
-        BACKDROP.zIndex(context.zIndex);
-      }
+      // 智能遮罩层层级设定
+      context.__backdrop('z-index', context.zIndex);
 
       return context;
     },
@@ -1086,9 +1111,9 @@
       if (context.modal) {
         var popup = context.__node;
 
-        // 关闭遮罩
+        // 智能遮罩层隐藏
         if (context.open) {
-          BACKDROP.hide(context);
+          context.__backdrop('hide');
         }
 
         // 移除类名
@@ -1153,10 +1178,8 @@
         // 隐藏弹窗
         popup.hide();
 
-        // 隐藏遮罩
-        if (context.modal) {
-          BACKDROP.hide(context);
-        }
+        // 智能遮罩层隐藏
+        context.__backdrop('hide');
 
         // 恢复焦点，照顾键盘操作的用户
         context.blur();
@@ -1191,13 +1214,8 @@
       // 清理激活项
       Layer.cleanActive(context);
 
-      // 隐藏遮罩
-      if (context.open && context.modal) {
-        BACKDROP.hide(context);
-      }
-
-      // 焦点锁定层
-      TAB_LOCK.hide();
+      // 智能遮罩层隐藏
+      context.__backdrop('hide');
 
       // 移除事件绑定并从 DOM 中移除节点
       context.__node
