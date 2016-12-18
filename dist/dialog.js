@@ -974,6 +974,13 @@
   var POPUP_CLASS_CLOSE = '-close';
   var POPUP_CLASS_MODAL = '-modal';
 
+  /**
+   * Popup
+   *
+   * @export
+   * @constructor
+   * @returns {Popup}
+   */
   function Popup() {
     var context = this;
 
@@ -1066,7 +1073,7 @@
         // 设置内容
         popup.html(context.innerHTML);
 
-        // 换成内容
+        // 缓存内容,防止重复替换
         context.__innerHTML = context.innerHTML;
       }
 
