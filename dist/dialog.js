@@ -1749,8 +1749,6 @@
 
       // 绑定事件
       context.__node.on('click', selector, function(e) {
-        e.preventDefault();
-
         var current;
         var target = $(this);
         var role = target.attr(DIALOG_ROLE_ATTR);
