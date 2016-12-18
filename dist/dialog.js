@@ -591,17 +591,6 @@
     }
   });
 
-  /**
-   * 清理激活状态
-   *
-   * @param {Layer} context
-   */
-  Layer.cleanActive = function(context) {
-    if (Layer.active === context) {
-      Layer.active = null;
-    }
-  };
-
   // 原型方法
   inherits(Layer, Events, {
     /**
@@ -672,7 +661,7 @@
 
       // 先让上一个激活实例失去焦点
       if (active && active !== context) {
-        active.blur(false);
+        active.blur();
       }
 
       // 浮层
@@ -724,17 +713,15 @@
         return context;
       }
 
-      var isBlur = arguments[0];
+      if (context === Layer.active) {
+        // 清理激活状态
+        Layer.active = null;
 
-      // 清理激活状态
-      Layer.cleanActive(context);
-
-      if (isBlur !== false) {
-        context.__focus(context.__activeElement);
+        // 移除类名
+        context.__node.removeClass(context.className + LAYER_CLASS_FOCUS);
+        // 触发失去焦点事件
+        context.emit('blur');
       }
-
-      context.__node.removeClass(context.className + LAYER_CLASS_FOCUS);
-      context.emit('blur');
 
       return context;
     },
@@ -1057,7 +1044,6 @@
 
       context.open = true;
       context.anchor = anchor || null;
-      context.__activeElement = context.__getActive();
 
       // 设置浮层
       popup
@@ -1216,8 +1202,8 @@
         return context;
       }
 
-      // 清理激活项
-      Layer.cleanActive(context);
+      // 调用失焦方法
+      context.blur();
 
       // 智能遮罩层隐藏
       context.__backdrop('hide');
