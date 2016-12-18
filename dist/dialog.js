@@ -1180,6 +1180,9 @@
         .removeClass(context.className + POPUP_CLASS_SHOW)
         .addClass(context.className + POPUP_CLASS_CLOSE);
 
+      // 恢复焦点，照顾键盘操作的用户
+      context.blur();
+
       // 动画完成之后隐藏弹窗
       effectsEnd(popup, function() {
         // 隐藏弹窗
@@ -1187,9 +1190,6 @@
 
         // 智能遮罩层隐藏
         context.__backdrop('hide');
-
-        // 恢复焦点，照顾键盘操作的用户
-        context.blur();
 
         // 切换打开状态
         context.open = false;
@@ -1749,6 +1749,8 @@
 
       // 绑定事件
       context.__node.on('click', selector, function(e) {
+        e.preventDefault();
+
         var current;
         var target = $(this);
         var role = target.attr(DIALOG_ROLE_ATTR);
