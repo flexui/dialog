@@ -1469,9 +1469,9 @@
   var DIALOG_ACTION_ROLE = 'action';
   var DIALOG_ROLE_ATTR = 'data-role';
   var DIALOG_ACTION_ID_ATTR = 'data-action-id';
-  var DIALOG_HEADER_CLASSNAME = '{{skin}}-header';
-  var DIALOG_CONTROLS_CLASSNAME = '{{skin}}-controls';
-  var DIALOG_ACTIONS_CLASSNAME = '{{skin}}-actions';
+  var DIALOG_CLASS_HEADER = '{{skin}}-header';
+  var DIALOG_CLASS_CONTROLS = '{{skin}}-controls';
+  var DIALOG_CLASS_ACTIONS = '{{skin}}-actions';
   // 弹窗标题
   var DIALOG_TITLE =
     '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
@@ -1480,12 +1480,12 @@
     '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
   // 弹窗主体框架
   var DIALOG_FRAME =
-    '<div class="' + DIALOG_HEADER_CLASSNAME + '">' +
+    '<div class="' + DIALOG_CLASS_HEADER + '">' +
     '  {{title}}' +
-    '  <div class="' + DIALOG_CONTROLS_CLASSNAME + '">{{controls}}</div>' +
+    '  <div class="' + DIALOG_CLASS_CONTROLS + '">{{controls}}</div>' +
     '</div>' +
     '{{content}}' +
-    '<div class="' + DIALOG_ACTIONS_CLASSNAME + '">{{actions}}</div>';
+    '<div class="' + DIALOG_CLASS_ACTIONS + '">{{actions}}</div>';
   // 标题栏操作按钮，例如关闭，最大化，最小化等
   var DIALOG_CONTROL =
     '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
@@ -1496,10 +1496,10 @@
     DIALOG_ROLE_ATTR + '="' + DIALOG_ACTION_ROLE + '" ' + DIALOG_ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
   // 标题栏操作按钮面板选择器
   var DIALOG_CONTROLS_SELECTOR =
-    '> .' + DIALOG_HEADER_CLASSNAME + ' > .' + DIALOG_CONTROLS_CLASSNAME;
+    '> .' + DIALOG_CLASS_HEADER + ' > .' + DIALOG_CLASS_CONTROLS;
   // 按钮面板
   var DIALOG_ACTIONS_SELECTOR =
-    '> .' + DIALOG_ACTIONS_CLASSNAME;
+    '> .' + DIALOG_CLASS_ACTIONS;
   // 事件委托选择器
   var DIALOG_DELEGATE_SELECTOR =
     DIALOG_CONTROLS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + '], ' + DIALOG_ACTIONS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + ']';
