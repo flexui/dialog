@@ -926,6 +926,10 @@
 
   // 对齐方式拆分正则
   var ALIGNSPLIT_RE = /\s+/;
+  var POPUP_CLASS_SHOW = '-show';
+  var POPUP_CLASS_CLOSE = '-close';
+  var POPUP_CLASS_FOCUS = '-focus';
+  var POPUP_CLASS_MODAL = '-modal';
 
   function Popup() {
     var context = this;
@@ -935,12 +939,7 @@
     // 设置初始样式
     context.__node
       .addClass(context.className)
-      .css({
-        display: 'none',
-        position: 'absolute',
-        top: 0,
-        left: 0
-      });
+      .css({ display: 'none', position: 'fixed' });
   }
 
   inherits(Popup, Layer, {
@@ -1003,8 +1002,8 @@
       popup
         .attr('role', context.modal ? 'alertdialog' : 'dialog')
         .css('position', context.fixed ? 'fixed' : 'absolute')
-        .removeClass(context.className + '-close')
-        .addClass(context.className + '-show');
+        .removeClass(context.className + POPUP_CLASS_CLOSE)
+        .addClass(context.className + POPUP_CLASS_SHOW);
 
       // 设置内容
       if (context.__innerHTML !== context.innerHTML) {
@@ -1021,7 +1020,7 @@
       // 显示遮罩
       if (context.modal) {
         BACKDROP.show(context);
-        popup.addClass(context.className + '-modal');
+        popup.addClass(context.className + POPUP_CLASS_MODAL);
       }
 
       // 焦点锁定层
@@ -1064,7 +1063,7 @@
         }
 
         // 移除类名
-        popup.removeClass(context.className + '-modal');
+        popup.removeClass(context.className + POPUP_CLASS_MODAL);
       }
 
       // 重置模态状态
@@ -1115,9 +1114,9 @@
 
       // 切换弹窗样式
       popup
-        .removeClass(context.className + '-focus')
-        .removeClass(context.className + '-show')
-        .addClass(context.className + '-close');
+        .removeClass(context.className + POPUP_CLASS_FOCUS)
+        .removeClass(context.className + POPUP_CLASS_SHOW)
+        .addClass(context.className + POPUP_CLASS_CLOSE);
 
       // 动画完成之后隐藏弹窗
       effectsEnd(popup, function() {
