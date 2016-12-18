@@ -1087,6 +1087,12 @@
       // 智能遮罩层层级设定
       context.__backdrop('z-index', context.zIndex);
 
+      // 动画完成
+      effectsEnd(popup, function() {
+        // 显示完成事件
+        context.emit('showed');
+      });
+
       return context;
     },
     /**
@@ -1173,7 +1179,7 @@
       // 关闭事件
       context.emit('close');
 
-      // 动画完成之后隐藏弹窗
+      // 动画完成
       effectsEnd(popup, function() {
         // 隐藏弹窗
         popup.hide();
