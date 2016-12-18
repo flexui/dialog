@@ -693,11 +693,9 @@
         // 刷新遮罩
         if (context.modal && context !== BACKDROP.anchor) {
           // 刷新遮罩位置
-          BACKDROP.show(context);
-          // 刷新焦点锁定层
-          TAB_LOCK.show(context);
+          context.__backdrop('show');
           // 刷新遮罩层级
-          BACKDROP.zIndex(index);
+          context.__backdrop('z-index', index);
         }
 
         // 设置弹窗层级
