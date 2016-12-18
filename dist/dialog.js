@@ -1523,7 +1523,7 @@
     align: 'bottom left'
   };
   // ID
-  var ID = Date.now();
+  var DIALOG_ID = Date.now();
   // WAI-ARIA
   var ARIA_LABELLEDBY = 'aria-title:{{id}}';
   var ARIA_DESCRIBEDBY = 'aria-content:{{id}}';
@@ -1576,7 +1576,7 @@
       DIALOGS[id] = context;
     } else {
       // ID
-      context.id = id = String(ID++);
+      context.id = id = String(DIALOG_ID++);
     }
 
     // 调用父类
