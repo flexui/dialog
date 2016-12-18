@@ -5,13 +5,13 @@ import * as Utils from '@flexui/utils';
 
 // 变量
 var DIALOGS = {};
-var CONTROL_ROLE = 'control';
-var ACTION_ROLE = 'action';
-var ROLE_ATTR = 'data-role';
-var ACTION_ID_ATTR = 'data-action-id';
-var HEADER_CLASSNAME = '{{skin}}-header';
-var CONTROLS_CLASSNAME = '{{skin}}-controls';
-var ACTIONS_CLASSNAME = '{{skin}}-actions';
+var DIALOG_CONTROL_ROLE = 'control';
+var DIALOG_ACTION_ROLE = 'action';
+var DIALOG_ROLE_ATTR = 'data-role';
+var DIALOG_ACTION_ID_ATTR = 'data-action-id';
+var DIALOG_HEADER_CLASSNAME = '{{skin}}-header';
+var DIALOG_CONTROLS_CLASSNAME = '{{skin}}-controls';
+var DIALOG_ACTIONS_CLASSNAME = '{{skin}}-actions';
 // 弹窗标题
 var DIALOG_TITLE =
   '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
@@ -20,29 +20,29 @@ var DIALOG_CONTENT =
   '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
 // 弹窗主体框架
 var DIALOG_FRAME =
-  '<div class="' + HEADER_CLASSNAME + '">' +
+  '<div class="' + DIALOG_HEADER_CLASSNAME + '">' +
   '  {{title}}' +
-  '  <div class="' + CONTROLS_CLASSNAME + '">{{controls}}</div>' +
+  '  <div class="' + DIALOG_CONTROLS_CLASSNAME + '">{{controls}}</div>' +
   '</div>' +
   '{{content}}' +
-  '<div class="' + ACTIONS_CLASSNAME + '">{{actions}}</div>';
+  '<div class="' + DIALOG_ACTIONS_CLASSNAME + '">{{actions}}</div>';
 // 标题栏操作按钮，例如关闭，最大化，最小化等
 var DIALOG_CONTROL =
   '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
-  ROLE_ATTR + '="' + CONTROL_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
+  DIALOG_ROLE_ATTR + '="' + DIALOG_CONTROL_ROLE + '" ' + DIALOG_ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
 // 弹窗按钮，例如确认，取消等
 var DIALOG_ACTION =
   '<button type="button" class="{{className}}" title="{{title}}" ' +
-  ROLE_ATTR + '="' + ACTION_ROLE + '" ' + ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
+  DIALOG_ROLE_ATTR + '="' + DIALOG_ACTION_ROLE + '" ' + DIALOG_ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
 // 标题栏操作按钮面板选择器
-var CONTROLS_SELECTOR =
-  '> .' + HEADER_CLASSNAME + ' > .' + CONTROLS_CLASSNAME;
+var DIALOG_CONTROLS_SELECTOR =
+  '> .' + DIALOG_HEADER_CLASSNAME + ' > .' + DIALOG_CONTROLS_CLASSNAME;
 // 按钮面板
-var ACTIONS_SELECTOR =
-  '> .' + ACTIONS_CLASSNAME;
+var DIALOG_ACTIONS_SELECTOR =
+  '> .' + DIALOG_ACTIONS_CLASSNAME;
 // 事件委托选择器
-var DELEGATE_SELECTOR =
-  CONTROLS_SELECTOR + ' [' + ROLE_ATTR + '], ' + ACTIONS_SELECTOR + ' [' + ROLE_ATTR + ']';
+var DIALOG_DELEGATE_SELECTOR =
+  DIALOG_CONTROLS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + '], ' + DIALOG_ACTIONS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + ']';
 // 默认设置
 var DIALOG_SETTINGS = {
   // 弹窗标识，设置后可以防止重复弹窗
@@ -191,9 +191,9 @@ Utils.doc.on('keydown', function(e) {
     var skin = active.className;
 
     // 窗体操作框容器
-    var controls = dialog.find(Utils.template(CONTROLS_SELECTOR, { skin: skin }))[0];
+    var controls = dialog.find(Utils.template(DIALOG_CONTROLS_SELECTOR, { skin: skin }))[0];
     // 按钮容器
-    var actions = dialog.find(Utils.template(ACTIONS_SELECTOR, { skin: skin }))[0];
+    var actions = dialog.find(Utils.template(DIALOG_ACTIONS_SELECTOR, { skin: skin }))[0];
 
     // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
     if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
@@ -276,7 +276,7 @@ Utils.inherits(Dialog, Popup, {
     var context = this;
     var options = context.options;
     // 选择器
-    var selector = Utils.template(DELEGATE_SELECTOR, {
+    var selector = Utils.template(DIALOG_DELEGATE_SELECTOR, {
       skin: context.className
     });
 
@@ -284,14 +284,14 @@ Utils.inherits(Dialog, Popup, {
     context.__node.on('click', selector, function(e) {
       var current;
       var target = $(this);
-      var role = target.attr(ROLE_ATTR);
-      var id = target.attr(ACTION_ID_ATTR);
+      var role = target.attr(DIALOG_ROLE_ATTR);
+      var id = target.attr(DIALOG_ACTION_ID_ATTR);
 
       switch (role) {
-        case CONTROL_ROLE:
+        case DIALOG_CONTROL_ROLE:
           current = options.controls[id];
           break;
-        case ACTION_ROLE:
+        case DIALOG_ACTION_ROLE:
           current = options.actions[id];
           break;
       }
