@@ -230,6 +230,7 @@
 
   /**
    * getComputedStyle
+   *
    * @export
    * @param {HTMLElement} element
    * @param {String} prop
@@ -252,6 +253,7 @@
     return {
       /**
        * getPropertyValue
+       *
        * @param {String} prop
        */
       getPropertyValue: function(prop) {
@@ -348,6 +350,7 @@
 
   /**
    * toMs
+   *
    * @param {String} value
    * @returns
    */
@@ -357,6 +360,7 @@
 
   /**
    * getTimeout
+   *
    * @param {Array} delays
    * @param {Array} durations
    * @returns
@@ -375,6 +379,7 @@
 
   /**
    * toArray
+   *
    * @param {any} value
    * @returns {Array}
    */
@@ -384,6 +389,7 @@
 
   /**
    * getEffectsInfo
+   *
    * @param {HTMLElement} element
    * @returns
    */
@@ -413,6 +419,7 @@
 
   /**
    * effectsEnd
+   *
    * @export
    * @param {jQueryElement} node
    * @param {Function} callback
@@ -614,6 +621,7 @@
     },
     /**
      * 依附实例
+     *
      * @param {Layer} anchor 定位弹窗实例
      */
     attach: function(anchor) {
@@ -629,6 +637,7 @@
     },
     /**
      * 显示遮罩
+     *
      * @param {Layer} anchor 定位弹窗实例
      */
     show: function(anchor) {
@@ -645,6 +654,7 @@
     },
     /**
      * 隐藏遮罩
+     *
      * @param {Layer} anchor 定位弹窗实例
      */
     hide: function(anchor) {
@@ -695,6 +705,9 @@
       }
     }
   };
+
+  // 得到焦点类名
+  var LAYER_CLASS_FOCUS = '-focus';
 
   /**
    * Layer
@@ -791,6 +804,7 @@
     innerHTML: '',
     /**
      * CSS 类名
+     * 只在浮层未初始化前可设置，之后不能更改
      *
      * @public
      * @property
@@ -843,6 +857,8 @@
         if (context.modal && context !== BACKDROP.anchor) {
           // 刷新遮罩位置
           BACKDROP.show(context);
+          // 刷新焦点锁定层
+          TAB_LOCK.show(context);
           // 刷新遮罩层级
           BACKDROP.zIndex(index);
         }
@@ -850,7 +866,7 @@
         // 设置弹窗层级
         layer.css('zIndex', index);
         // 添加激活类名
-        layer.addClass(context.className + '-focus');
+        layer.addClass(context.className + LAYER_CLASS_FOCUS);
         // 触发事件
         context.emit('focus');
 
@@ -882,7 +898,7 @@
         context.__focus(context.__activeElement);
       }
 
-      context.__node.removeClass(context.className + '-focus');
+      context.__node.removeClass(context.className + LAYER_CLASS_FOCUS);
       context.emit('blur');
 
       return context;
@@ -928,7 +944,6 @@
   var ALIGNSPLIT_RE = /\s+/;
   var POPUP_CLASS_SHOW = '-show';
   var POPUP_CLASS_CLOSE = '-close';
-  var POPUP_CLASS_FOCUS = '-focus';
   var POPUP_CLASS_MODAL = '-modal';
 
   function Popup() {
@@ -939,48 +954,61 @@
     // 设置初始样式
     context.__node
       .addClass(context.className)
-      .css({ display: 'none', position: 'fixed' });
+      .css({
+        display: 'none',
+        position: 'absolute',
+        top: 0,
+        left: 0
+      });
   }
 
   inherits(Popup, Layer, {
     /**
      * close 返回值
+     *
      * @public
      * @property
      */
     returnValue: undefined,
     /**
      * 跟随的 DOM 元素节点
+     *
      * @public
      * @readonly
      */
     anchor: null,
     /**
      * 是否开启固定定位
+     *
      * @public
      * @property
      */
     fixed: false,
     /**
      * 对齐方式
+     *
      * @public
      * @property
      */
     align: 'bottom left',
     /**
      * CSS 类名
+     * 只在浮层未初始化前可设置，之后不能更改
+     *
      * @public
      * @property
      */
     className: 'ui-dialog',
     /**
      * 构造函数
+     *
      * @public
      * @readonly
      */
     constructor: Popup,
     /**
      * 显示浮层（私有）
+     *
      * @private
      * @param {HTMLElement}  指定位置（可选）
      */
@@ -1047,6 +1075,7 @@
     },
     /**
      * 显示浮层
+     *
      * @public
      * @param {HTMLElement}  指定位置（可选）
      */
@@ -1073,7 +1102,8 @@
       return context.__show(anchor);
     },
     /**
-     * 显示模态浮层。
+     * 显示模态浮层
+     *
      * @public
      * @param {HTMLElement}  指定位置（可选）
      */
@@ -1088,6 +1118,7 @@
     },
     /**
      * 关闭浮层
+     *
      * @public
      * @param {any} result
      */
@@ -1114,7 +1145,6 @@
 
       // 切换弹窗样式
       popup
-        .removeClass(context.className + POPUP_CLASS_FOCUS)
         .removeClass(context.className + POPUP_CLASS_SHOW)
         .addClass(context.className + POPUP_CLASS_CLOSE);
 
@@ -1128,11 +1158,11 @@
           BACKDROP.hide(context);
         }
 
-        // 切换打开状态
-        context.open = false;
-
         // 恢复焦点，照顾键盘操作的用户
         context.blur();
+
+        // 切换打开状态
+        context.open = false;
 
         // 关闭事件
         context.emit('close');
@@ -1142,6 +1172,7 @@
     },
     /**
      * 销毁浮层
+     *
      * @public
      */
     remove: function() {
@@ -1188,6 +1219,7 @@
     },
     /**
      * 重置位置
+     *
      * @public
      */
     reset: function() {
@@ -1228,6 +1260,7 @@
     },
     /**
      * 居中浮层
+     *
      * @private
      */
     __center: function() {
@@ -1250,6 +1283,7 @@
     },
     /**
      * 跟随元素
+     *
      * @private
      * @param {HTMLElement} anchor
      */
@@ -1365,6 +1399,7 @@
     /**
      * 获取元素相对于页面的位置（包括iframe内的元素）
      * 暂时不支持两层以上的 iframe 套嵌
+     *
      * @private
      * @param {HTMLElement} anchor
      */
@@ -1527,6 +1562,12 @@
       .attr('aria-labelledby', template(ARIA_LABELLEDBY, { id: id }))
       .attr('aria-describedby', template(ARIA_DESCRIBEDBY, { id: id }));
 
+    // 主题
+    var skin = options.skin;
+
+    // 设置主题
+    context.className = skin && string(skin) ? skin : DIALOG_SETTINGS.skin;
+
     // 初始化内容
     context.__initContent(content);
     // 初始化参数
@@ -1613,6 +1654,7 @@
   inherits(Dialog, Popup, {
     /**
      * 构造函数
+     *
      * @public
      * @readonly
      */
@@ -1768,7 +1810,7 @@
           context.__initContent(value);
           break;
         case 'options':
-          // 重新初始化参数， id 禁止覆写
+          // 重新初始化参数， id 和 skin 禁止覆写
           context.__initOptions(value, context.options);
           break;
       }

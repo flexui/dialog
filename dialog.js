@@ -127,6 +127,12 @@ export default function Dialog(content, options) {
     .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: id }))
     .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: id }));
 
+  // 主题
+  var skin = options.skin;
+
+  // 设置主题
+  context.className = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
+
   // 初始化内容
   context.__initContent(content);
   // 初始化参数
@@ -213,6 +219,7 @@ var POPUP_REMOVE = Popup.prototype.remove;
 Utils.inherits(Dialog, Popup, {
   /**
    * 构造函数
+   *
    * @public
    * @readonly
    */
@@ -368,7 +375,7 @@ Utils.inherits(Dialog, Popup, {
         context.__initContent(value);
         break;
       case 'options':
-        // 重新初始化参数， id 禁止覆写
+        // 重新初始化参数， id 和 skin 禁止覆写
         context.__initOptions(value, context.options);
         break;
     }
