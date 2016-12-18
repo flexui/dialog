@@ -1167,6 +1167,12 @@
       // 恢复焦点，照顾键盘操作的用户
       context.blur();
 
+      // 切换打开状态
+      context.open = false;
+
+      // 关闭事件
+      context.emit('close');
+
       // 动画完成之后隐藏弹窗
       effectsEnd(popup, function() {
         // 隐藏弹窗
@@ -1175,11 +1181,8 @@
         // 智能遮罩层隐藏
         context.__backdrop('hide');
 
-        // 切换打开状态
-        context.open = false;
-
-        // 关闭事件
-        context.emit('close');
+        // 关闭完成事件
+        context.emit('closed');
       });
 
       return context;

@@ -27,7 +27,7 @@ function create(id, title, content, options) {
     actions: options.actions
   });
 
-  dialog.on('close', function() {
+  dialog.on('closed', function() {
     if (remove.checked) {
       dialog.remove();
     }
