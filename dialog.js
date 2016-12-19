@@ -17,7 +17,7 @@ var DIALOG_TITLE =
   '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
 // 弹窗内容
 var DIALOG_CONTENT =
-  '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
+  '<div id="{{id}}" class="{{skin}}-content" style="width: {{width}}; height: {{height}};">{{content}}</div>';
 // 弹窗主体框架
 var DIALOG_FRAME =
   '<div class="' + DIALOG_CLASS_HEADER + '">' +
@@ -53,6 +53,10 @@ var DIALOG_SETTINGS = {
   controls: [],
   // 弹窗按钮，参数同 controls
   actions: [],
+  // 弹窗内容宽度
+  width: 'auto',
+  // 弹窗内容高度
+  height: 'auto',
   // 是否 fixed 定位
   fixed: false,
   // 键盘操作
@@ -66,7 +70,7 @@ var DIALOG_SETTINGS = {
 var DIALOG_ID = Date.now();
 // WAI-ARIA
 var ARIA_LABELLEDBY = 'aria-title:{{id}}';
-var ARIA_DESCRIBEDBY = 'aria-content:{{id}}'
+var ARIA_DESCRIBEDBY = 'aria-content:{{id}}';
 
 /**
  * Dialog
@@ -263,14 +267,11 @@ Utils.inherits(Dialog, Popup, {
 
     // 格式化参数
     options.title = title || DIALOG_SETTINGS.title;
+    options.width = Utils.addCSSUnit(options.width) || DIALOG_SETTINGS.which;
+    options.height = Utils.addCSSUnit(options.height) || DIALOG_SETTINGS.height;
     options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
     options.actions = Array.isArray(actions) ? actions : DIALOG_SETTINGS.actions;
     options.skin = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
-
-    // 设置属性
-    context.fixed = options.fixed;
-    context.align = options.align;
-    context.className = options.skin;
 
     return context;
   },
@@ -346,6 +347,8 @@ Utils.inherits(Dialog, Popup, {
       content: Utils.template(DIALOG_CONTENT, {
         id: Utils.template(ARIA_DESCRIBEDBY, { id: id }),
         skin: skin,
+        width: options.width,
+        height: options.height,
         content: content
       }),
       actions: actions
@@ -354,7 +357,9 @@ Utils.inherits(Dialog, Popup, {
     return context;
   },
   /**
-   * 重新设置内容和参数
+   * 重新设置内容和参数，
+   * 此方法位惰性方法，不会立即生效，
+   * 需要重新调用 show/showModal 才能刷新
    *
    * @public
    * @param {String} name

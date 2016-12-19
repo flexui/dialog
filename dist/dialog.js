@@ -308,6 +308,21 @@
     });
   }
 
+  // CSS unit split
+  var CSS_UNIT_SPLIT_RE = /^([+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|))(.*)$/i;
+
+  /**
+   * addCSSUnit
+   *
+   * @param {any} value
+   * @returns {String}
+   */
+  function addCSSUnit(value) {
+    var matches = CSS_UNIT_SPLIT_RE.exec(value);
+
+    return matches ? matches[1] + (matches[2] || 'px') : value;
+  }
+
   var slice = AP.slice;
 
   function Events() {
@@ -1034,6 +1049,25 @@
      */
     constructor: Popup,
     /**
+     * 设置内容
+     *
+     * @private
+     * @param {String} html
+     */
+    __html: function(html) {
+      var context = this;
+      var popup = context.__node;
+
+      // 设置内容
+      if (context.__innerHTML !== html) {
+        // 设置内容
+        popup.html(html);
+
+        // 缓存内容,防止重复替换
+        context.__innerHTML = html;
+      }
+    },
+    /**
      * 显示浮层（私有）
      *
      * @private
@@ -1047,10 +1081,10 @@
         return context;
       }
 
-      var popup = context.__node;
-
       context.open = true;
       context.anchor = anchor || null;
+
+      var popup = context.__node;
 
       // 设置浮层
       popup
@@ -1060,13 +1094,7 @@
         .addClass(context.className + POPUP_CLASS_SHOW);
 
       // 设置内容
-      if (context.__innerHTML !== context.innerHTML) {
-        // 设置内容
-        popup.html(context.innerHTML);
-
-        // 缓存内容,防止重复替换
-        context.__innerHTML = context.innerHTML;
-      }
+      context.__html(context.innerHTML);
 
       // 弹窗添加到文档树
       popup.appendTo(document.body);
@@ -1477,7 +1505,7 @@
     '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
   // 弹窗内容
   var DIALOG_CONTENT =
-    '<div id="{{id}}" class="{{skin}}-content">{{content}}</div>';
+    '<div id="{{id}}" class="{{skin}}-content" style="width: {{width}}; height: {{height}};">{{content}}</div>';
   // 弹窗主体框架
   var DIALOG_FRAME =
     '<div class="' + DIALOG_CLASS_HEADER + '">' +
@@ -1513,6 +1541,10 @@
     controls: [],
     // 弹窗按钮，参数同 controls
     actions: [],
+    // 弹窗内容宽度
+    width: 'auto',
+    // 弹窗内容高度
+    height: 'auto',
     // 是否 fixed 定位
     fixed: false,
     // 键盘操作
@@ -1723,14 +1755,11 @@
 
       // 格式化参数
       options.title = title || DIALOG_SETTINGS.title;
+      options.width = addCSSUnit(options.width) || DIALOG_SETTINGS.which;
+      options.height = addCSSUnit(options.height) || DIALOG_SETTINGS.height;
       options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
       options.actions = Array.isArray(actions) ? actions : DIALOG_SETTINGS.actions;
       options.skin = skin && string(skin) ? skin : DIALOG_SETTINGS.skin;
-
-      // 设置属性
-      context.fixed = options.fixed;
-      context.align = options.align;
-      context.className = options.skin;
 
       return context;
     },
@@ -1806,6 +1835,8 @@
         content: template(DIALOG_CONTENT, {
           id: template(ARIA_DESCRIBEDBY, { id: id }),
           skin: skin,
+          width: options.width,
+          height: options.height,
           content: content
         }),
         actions: actions
@@ -1814,7 +1845,9 @@
       return context;
     },
     /**
-     * 重新设置内容和参数
+     * 重新设置内容和参数，
+     * 此方法位惰性方法，不会立即生效，
+     * 需要重新调用 show/showModal 才能刷新
      *
      * @public
      * @param {String} name
