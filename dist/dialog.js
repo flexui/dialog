@@ -202,7 +202,7 @@
    * 高性能 apply
    *
    * @param  {Function} func
-   * @param  {Any} context
+   * @param  {any} context
    * @param  {Array} args
    * call is faster than apply, optimize less than 6 args
    * https://github.com/micro-js/apply
@@ -446,7 +446,7 @@
       height: '100%'
     }),
     /**
-     * 设置弹窗层级
+     * 设置浮层层级
      */
     zIndex: function(zIndex) {
       // 最小为 0
@@ -458,7 +458,7 @@
     /**
      * 依附实例
      *
-     * @param {Layer} anchor 定位弹窗实例
+     * @param {Layer} anchor 定位浮层实例
      */
     attach: function(anchor) {
       var node = anchor.node;
@@ -474,7 +474,7 @@
     /**
      * 显示遮罩
      *
-     * @param {Layer} anchor 定位弹窗实例
+     * @param {Layer} anchor 定位浮层实例
      */
     show: function(anchor) {
       var alloc = BACKDROP.alloc;
@@ -491,7 +491,7 @@
     /**
      * 隐藏遮罩
      *
-     * @param {Layer} anchor 定位弹窗实例
+     * @param {Layer} anchor 定位浮层实例
      */
     hide: function(anchor) {
       BACKDROP.alloc = BACKDROP.alloc.filter(function(item) {
@@ -570,22 +570,31 @@
   // 当前得到焦点的实例
   Layer.active = null;
 
-  // 锁定 tab 焦点在弹窗内
+  // 锁定 tab 焦点在浮层内
   doc.on('focusin', function(e) {
     var target = e.target;
     var active = Layer.active;
     var anchor = BACKDROP.anchor;
 
-    // 焦点不在弹窗让焦点失去焦点
-    if (active && active !== anchor &&
-      target !== active.node && !active.node.contains(target)) {
-      active.blur(false);
-    }
-
-    // 锁定焦点
-    if (anchor && anchor.open &&
-      (target === BACKDROP.node[0] || target === TAB_LOCK.node[0])) {
-      anchor.focus();
+    if (anchor) {
+      // 锁定焦点
+      switch (target) {
+        case BACKDROP.node[0]:
+          if (active) {
+            active.focus();
+          } else {
+            anchor.focus();
+          }
+          break;
+        case TAB_LOCK.node[0]:
+          anchor.focus();
+          break;
+      }
+    } else if (active &&
+      target !== active.node &&
+      !active.node.contains(target)) {
+      // 焦点不在浮层让浮层失焦
+      active.blur();
     }
   });
 
@@ -685,7 +694,7 @@
           context.__backdrop('z-index', index);
         }
 
-        // 设置弹窗层级
+        // 设置浮层层级
         layer.css('zIndex', index);
         // 添加激活类名
         layer.addClass(context.className + LAYER_CLASS_FOCUS);
@@ -763,7 +772,7 @@
      *
      * @private
      * @param {String} method
-     * @param {Any} value
+     * @param {any} value
      */
     __backdrop: function(method, value) {
       var context = this;
