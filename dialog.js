@@ -205,9 +205,9 @@ Utils.doc.on('keydown', function(e) {
     if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
       var options = active.options;
 
-      // 触发所有键盘绑定动作
-      execAction(options.controls, e, active);
+      // 触发所有键盘绑定动作，优先执行 actions
       execAction(options.actions, e, active);
+      execAction(options.controls, e, active);
     }
   }
 });

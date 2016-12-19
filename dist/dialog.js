@@ -585,7 +585,6 @@
     // 锁定焦点
     if (anchor && anchor.open &&
       (target === BACKDROP.node[0] || target === TAB_LOCK.node[0])) {
-      e.preventDefault();
       anchor.focus();
     }
   });
@@ -1657,9 +1656,9 @@
       if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
         var options = active.options;
 
-        // 触发所有键盘绑定动作
-        execAction(options.controls, e, active);
+        // 触发所有键盘绑定动作，优先执行 actions
         execAction(options.actions, e, active);
+        execAction(options.controls, e, active);
       }
     }
   });
