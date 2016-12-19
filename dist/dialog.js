@@ -1081,9 +1081,11 @@
         return context;
       }
 
+      // 初始化属性
       context.open = true;
       context.anchor = anchor || null;
 
+      // 获取浮层元素
       var popup = context.__node;
 
       // 设置浮层
