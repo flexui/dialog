@@ -443,8 +443,7 @@
       top: 0,
       left: 0,
       width: '100%',
-      height: '100%',
-      userSelect: 'none'
+      height: '100%'
     }),
     /**
      * 设置弹窗层级
@@ -1734,7 +1733,6 @@
      */
     __initEvents: function() {
       var context = this;
-      var options = context.options;
       // 选择器
       var selector = template(DIALOG_DELEGATE_SELECTOR, {
         skin: context.className
@@ -1744,6 +1742,7 @@
       context.__node.on('click', selector, function(e) {
         var current;
         var target = $(this);
+        var options = context.options;
         var role = target.attr(DIALOG_ROLE_ATTR);
         var id = target.attr(DIALOG_ACTION_ID_ATTR);
 

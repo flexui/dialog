@@ -281,7 +281,6 @@ Utils.inherits(Dialog, Popup, {
    */
   __initEvents: function() {
     var context = this;
-    var options = context.options;
     // 选择器
     var selector = Utils.template(DIALOG_DELEGATE_SELECTOR, {
       skin: context.className
@@ -291,6 +290,7 @@ Utils.inherits(Dialog, Popup, {
     context.__node.on('click', selector, function(e) {
       var current;
       var target = $(this);
+      var options = context.options;
       var role = target.attr(DIALOG_ROLE_ATTR);
       var id = target.attr(DIALOG_ACTION_ID_ATTR);
 
