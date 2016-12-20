@@ -1567,6 +1567,8 @@
     }
   });
 
+  var DIALOG_FRAME = "<div class=\"ui-dialog-header\">\n  <div id=\"<%= @labelledby %>\" class=\"ui-dialog-title\" title=\"<%= @title.title %>\">\n    <%== @title.value %>\n  </div>\n  <div class=\"ui-dialog-controls\">\n    <% @controls.forEach(function(control, index) { %>\n    <a href=\"javascript:;\" class=\"<%= control.className %>\" title=\"<%= control.title %>\" data-role=\"control\" data-action-id=\"<%= index %>\">\n      <%== control.value %>\n    </a>\n    <% }); %>\n  </div>\n</div>\n<div id=\"<%= @describedby %>\" class=\"ui-dialog-content\" style=\"width: <%= @width %>; height: <%= @height %>\">\n  <%== @content %>\n</div>\n<div class=\"ui-dialog-buttons\">\n  <% @buttons.forEach(function(button, index) { %>\n  <button type=\"button\" class=\"<%= button.className %>\" title=\"<%= button.title %>\" data-role=\"action\" data-action-id=\"<%= index %>\"><%== button.value %></button>\n  <% }); %>\n</div>\n";
+
   // 变量
   var DIALOGS = {};
 
@@ -1575,22 +1577,6 @@
   // WAI-ARIA
   var ARIA_LABELLEDBY = 'aria-title:<%= @id %>';
   var ARIA_DESCRIBEDBY = 'aria-content:<%= @id %>';
-  // 弹窗主体框架
-  var DIALOG_FRAME =
-    '<div class="ui-dialog-header">' +
-    '  <div id="<%= @labelledby %>" class="ui-dialog-title" title="<%= @title.title %>"><%== @title.value %></div>' +
-    '  <div class="ui-dialog-controls">' +
-    '  <% @controls.forEach(function(control, index) { %>' +
-    '    <a href="javascript:;" class="<%= control.className %>" title="<%= control.title %>" data-role="control" data-action-id="<%= index %>"><%== control.value %></a>' +
-    '  <% }); %>' +
-    '  </div>' +
-    '</div>' +
-    '<div id="<%= @describedby %>" class="ui-dialog-content" style="width: <%= @width %>; height: <%= @height %>;"><%== @content %></div>' +
-    '<div class="ui-dialog-buttons">' +
-    '<% @buttons.forEach(function(button, index) { %>' +
-    '  <button type="button" class="<%= button.className %>" title="<%= button.title %>" data-role="action" data-action-id="<%= index %>"><%== button.value %></button>' +
-    '<% }); %>' +
-    '</div>';
 
   // 默认设置
   var DIALOG_SETTINGS = {
@@ -1673,14 +1659,14 @@
     // 初始化模板函数
     var views = context.views = {
       frame: template(DIALOG_FRAME),
-      labelledby: template(ARIA_LABELLEDBY),
-      describedby: template(ARIA_DESCRIBEDBY)
+      labelledby: template(ARIA_LABELLEDBY, { id: id }),
+      describedby: template(ARIA_DESCRIBEDBY, { id: id })
     };
 
     // 设置 WAI-ARIA
     context.__node
-      .attr('aria-labelledby', views.labelledby({ id: id }))
-      .attr('aria-describedby', views.describedby({ id: id }));
+      .attr('aria-labelledby', views.labelledby)
+      .attr('aria-describedby', views.describedby);
 
     // 初始化内容
     context.__initContent(content);
@@ -1788,11 +1774,11 @@
 
       // 格式化参数
       options.title = title || DIALOG_SETTINGS.title;
+      options.skin = skin && string(skin) ? skin : DIALOG_SETTINGS.skin;
       options.width = addCSSUnit(options.width) || DIALOG_SETTINGS.which;
       options.height = addCSSUnit(options.height) || DIALOG_SETTINGS.height;
-      options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
       options.buttons = Array.isArray(buttons) ? buttons : DIALOG_SETTINGS.buttons;
-      options.skin = skin && string(skin) ? skin : DIALOG_SETTINGS.skin;
+      options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
 
       // 设置主题
       context.className = 'ui-' + options.skin + '-dialog';
@@ -1846,19 +1832,15 @@
      */
     __render: function() {
       var context = this;
-      var id = context.id;
-      var skin = context.className;
-      var content = context.content;
-      var options = context.options;
-      var title = options.title;
       var views = context.views;
+      var data = $.extend({}, context.options, {
+        content: context.content,
+        labelledby: views.labelledby,
+        describedby: views.describedby
+      });
 
       // 设置内容
-      context.innerHTML = views.frame($.extend({}, options, {
-        content: context.content,
-        labelledby: views.labelledby({ id: context.id }),
-        describedby: views.describedby({ id: context.id })
-      }));
+      context.innerHTML = views.frame(data);
 
       return context;
     },

@@ -2,6 +2,7 @@ import $ from 'jquery';
 import Popup from './lib/popup.js';
 import Layer from '@flexui/layer';
 import * as Utils from '@flexui/utils';
+import DIALOG_FRAME from './views/dialog.html';
 
 // 变量
 var DIALOGS = {};
@@ -11,22 +12,6 @@ var DIALOG_ID = Date.now();
 // WAI-ARIA
 var ARIA_LABELLEDBY = 'aria-title:<%= @id %>';
 var ARIA_DESCRIBEDBY = 'aria-content:<%= @id %>';
-// 弹窗主体框架
-var DIALOG_FRAME =
-  '<div class="ui-dialog-header">' +
-  '  <div id="<%= @labelledby %>" class="ui-dialog-title" title="<%= @title.title %>"><%== @title.value %></div>' +
-  '  <div class="ui-dialog-controls">' +
-  '  <% @controls.forEach(function(control, index) { %>' +
-  '    <a href="javascript:;" class="<%= control.className %>" title="<%= control.title %>" data-role="control" data-action-id="<%= index %>"><%== control.value %></a>' +
-  '  <% }); %>' +
-  '  </div>' +
-  '</div>' +
-  '<div id="<%= @describedby %>" class="ui-dialog-content" style="width: <%= @width %>; height: <%= @height %>;"><%== @content %></div>' +
-  '<div class="ui-dialog-buttons">' +
-  '<% @buttons.forEach(function(button, index) { %>' +
-  '  <button type="button" class="<%= button.className %>" title="<%= button.title %>" data-role="action" data-action-id="<%= index %>"><%== button.value %></button>' +
-  '<% }); %>' +
-  '</div>';
 
 // 默认设置
 var DIALOG_SETTINGS = {
@@ -109,14 +94,14 @@ export default function Dialog(content, options) {
   // 初始化模板函数
   var views = context.views = {
     frame: Utils.template(DIALOG_FRAME),
-    labelledby: Utils.template(ARIA_LABELLEDBY),
-    describedby: Utils.template(ARIA_DESCRIBEDBY)
+    labelledby: Utils.template(ARIA_LABELLEDBY, { id: id }),
+    describedby: Utils.template(ARIA_DESCRIBEDBY, { id: id })
   };
 
   // 设置 WAI-ARIA
   context.__node
-    .attr('aria-labelledby', views.labelledby({ id: id }))
-    .attr('aria-describedby', views.describedby({ id: id }));
+    .attr('aria-labelledby', views.labelledby)
+    .attr('aria-describedby', views.describedby);
 
   // 初始化内容
   context.__initContent(content);
@@ -224,11 +209,11 @@ Utils.inherits(Dialog, Popup, {
 
     // 格式化参数
     options.title = title || DIALOG_SETTINGS.title;
+    options.skin = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
     options.width = Utils.addCSSUnit(options.width) || DIALOG_SETTINGS.which;
     options.height = Utils.addCSSUnit(options.height) || DIALOG_SETTINGS.height;
-    options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
     options.buttons = Array.isArray(buttons) ? buttons : DIALOG_SETTINGS.buttons;
-    options.skin = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
+    options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
 
     // 设置主题
     context.className = 'ui-' + options.skin + '-dialog';
@@ -282,19 +267,15 @@ Utils.inherits(Dialog, Popup, {
    */
   __render: function() {
     var context = this;
-    var id = context.id;
-    var skin = context.className;
-    var content = context.content;
-    var options = context.options;
-    var title = options.title;
     var views = context.views;
+    var data = $.extend({}, context.options, {
+      content: context.content,
+      labelledby: views.labelledby,
+      describedby: views.describedby
+    });
 
     // 设置内容
-    context.innerHTML = views.frame($.extend({}, options, {
-      content: context.content,
-      labelledby: views.labelledby({ id: context.id }),
-      describedby: views.describedby({ id: context.id })
-    }));
+    context.innerHTML = views.frame(data);
 
     return context;
   },
