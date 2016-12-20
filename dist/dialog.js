@@ -549,9 +549,6 @@
       BACKDROP.node
         .attr('class', className)
         .insertBefore(node);
-
-      // 当前依附实例
-      BACKDROP.anchor = anchor;
     },
     /**
      * 显示遮罩
@@ -559,15 +556,26 @@
      * @param {Layer} anchor 定位浮层实例
      */
     show: function(anchor) {
-      var alloc = BACKDROP.alloc;
-      var index = alloc.indexOf(anchor);
+      // 跟随元素
+      BACKDROP.attach(anchor);
 
       // 不存在或者不在队尾重新刷新遮罩位置和缓存队列
-      if (index === -1 || index !== alloc.length - 1) {
-        // 跟随元素
-        BACKDROP.attach(anchor);
-        // 放置缓存到队尾
-        alloc.push(anchor);
+      if (anchor !== BACKDROP.anchor) {
+        var alloc = BACKDROP.alloc;
+        var index = alloc.indexOf(anchor);
+
+        if (index === -1 || index !== alloc.length - 1) {
+          // 删除原来的缓存
+          if (index !== -1) {
+            alloc.splice(index, 1);
+          }
+
+          // 放置缓存到队尾
+          alloc.push(anchor);
+
+          // 当前依附实例
+          BACKDROP.anchor = anchor;
+        }
       }
     },
     /**
