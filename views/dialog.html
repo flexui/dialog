@@ -1,20 +1,32 @@
 <div class="ui-dialog-header">
-  <div id="<%= @labelledby %>" class="ui-dialog-title" title="<%= @title.title %>">
+  <div id="<%= @labelledby %>"
+    class="ui-dialog-title"
+    title="<%= @title.title %>">
     <%== @title.value %>
   </div>
   <div class="ui-dialog-controls">
     <% @controls.forEach(function(control, index) { %>
-    <a href="javascript:;" class="<%= control.className %>" title="<%= control.title %>" data-role="control" data-action-id="<%= index %>">
-      <%== control.value %>
-    </a>
+    <a href="javascript:;"
+      class="<%= control.className %>"
+      title="<%= control.title || control.value %>"
+      data-role="control"
+      data-action-id="<%= index %>"
+      <%= control.autofocus ? 'autofocus' : '' %>><%== control.value %></a>
     <% }); %>
   </div>
 </div>
-<div id="<%= @describedby %>" class="ui-dialog-content" style="width: <%= @width %>; height: <%= @height %>;">
+<div id="<%= @describedby %>"
+  class="ui-dialog-content"
+  style="width: <%= @width %>; height: <%= @height %>;">
   <%== @content %>
 </div>
 <div class="ui-dialog-buttons">
   <% @buttons.forEach(function(button, index) { %>
-  <button type="button" class="<%= button.className %>" title="<%= button.title %>" data-role="action" data-action-id="<%= index %>"><%== button.value %></button>
+  <button type="button"
+    class="<%= button.className %>"
+    title="<%= button.title || button.value %>"
+    data-role="action"
+    data-action-id="<%= index %>"
+    <%= button.autofocus ? 'autofocus' : '' %>><%== button.value %></button>
   <% }); %>
 </div>

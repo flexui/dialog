@@ -51,6 +51,7 @@ $('#button').on('click', function() {
             buttons: [{
               which: 13,
               value: '确认',
+              autofocus: true,
               className: 'ui-button',
               action: function() {
                 this.close();

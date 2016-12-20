@@ -11,7 +11,16 @@ rollup.rollup({
   entry: 'index.js',
   plugins: [
     html({
-      include: '**/*.html'
+      include: '**/*.html',
+      htmlMinifierOptions: {
+        minifyJS: true,
+        minifyCSS: true,
+        removeComments: true,
+        collapseWhitespace: true,
+        conservativeCollapse: true,
+        removeEmptyAttributes: true,
+        collapseBooleanAttributes: true
+      }
     }),
     npm({
       // use "jsnext:main" if possible
