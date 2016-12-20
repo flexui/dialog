@@ -2,7 +2,8 @@
   <div id="<%= @labelledby %>"
     class="ui-dialog-title"
     title="<%= @title.title %>"><%== @title.value %></div>
-  <div class="ui-dialog-controls"><% @controls.forEach(function(control, index) { %><a href="javascript:;"
+  <div class="ui-dialog-controls"><% @controls.forEach(function(control, index) { %><a
+    href="javascript:;"
     class="<%= control.className %>"
     title="<%= control.title || control.value %>"
     data-role="control"
@@ -12,9 +13,9 @@
 <div id="<%= @describedby %>"
   class="ui-dialog-content"
   style="width: <%= @width %>; height: <%= @height %>;"><%== @content %></div>
-<div class="ui-dialog-buttons"><% @buttons.forEach(function(button, index) { %><button type="button"
+<div class="ui-dialog-buttons"><% @buttons.forEach(function(button, index) { %><button
+  type="button"
   class="<%= button.className %>"
   title="<%= button.title || button.value %>"
-  data-role="action"
-  data-action-id="<%= index %>"
+  data-role="action" data-action-id="<%= index %>"
   <%= button.autofocus ? 'autofocus' : '' %>><%== button.value %></button><% }); %></div>
