@@ -37,7 +37,7 @@ function create(id, title, content, options) {
 }
 
 $('#button').on('click', function() {
-  var popup = create(unique.checked ? 'confirm' : null, '弹出消息', '<input class="ui-input" type="text" value="hello, world">', {
+  var popup = create(unique.checked ? 'confirm' : null, '弹出消息', 'hello, world', {
     buttons: [
       {
         which: 13,
@@ -51,7 +51,6 @@ $('#button').on('click', function() {
             buttons: [{
               which: 13,
               value: '确认',
-              autofocus: true,
               className: 'ui-button',
               action: function() {
                 this.close();

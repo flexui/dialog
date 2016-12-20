@@ -1343,8 +1343,6 @@
       for (var property in context) {
         delete context[property];
       }
-
-      return context;
     },
     /**
      * 重置位置
@@ -1567,7 +1565,7 @@
     }
   });
 
-  var DIALOG_FRAME = "<div class=\"ui-dialog-header\"> <div id=\"<%= @labelledby %>\" class=\"ui-dialog-title\" title=\"<%= @title.title %>\"> <%== @title.value %> </div> <div class=\"ui-dialog-controls\"> <% @controls.forEach(function(control, index) { %> <a href=\"javascript:;\" class=\"<%= control.className %>\" title=\"<%= control.title || control.value %>\" data-role=\"control\" data-action-id=\"<%= index %>\" <%= control.autofocus ? 'autofocus' : '' %>><%== control.value %></a> <% }); %> </div> </div> <div id=\"<%= @describedby %>\" class=\"ui-dialog-content\" style=\"width: <%= @width %>;height: <%= @height %>\"> <%== @content %> </div> <div class=\"ui-dialog-buttons\"> <% @buttons.forEach(function(button, index) { %> <button type=\"button\" class=\"<%= button.className %>\" title=\"<%= button.title || button.value %>\" data-role=\"action\" data-action-id=\"<%= index %>\" <%= button.autofocus ? 'autofocus' : '' %>><%== button.value %></button> <% }); %> </div> ";
+  var DIALOG_FRAME = "<div class=\"ui-dialog-header\"> <div id=\"<%= @labelledby %>\" class=\"ui-dialog-title\" title=\"<%= @title.title %>\"><%== @title.value %></div> <div class=\"ui-dialog-controls\"><% @controls.forEach(function(control, index) { %><a href=\"javascript:;\" class=\"<%= control.className %>\" title=\"<%= control.title || control.value %>\" data-role=\"control\" data-action-id=\"<%= index %>\" <%= control.autofocus ? 'autofocus' : '' %>><%== control.value %></a><% }); %></div> </div> <div id=\"<%= @describedby %>\" class=\"ui-dialog-content\" style=\"width: <%= @width %>;height: <%= @height %>\"><%== @content %></div> <div class=\"ui-dialog-buttons\"><% @buttons.forEach(function(button, index) { %><button type=\"button\" class=\"<%= button.className %>\" title=\"<%= button.title || button.value %>\" data-role=\"action\" data-action-id=\"<%= index %>\" <%= button.autofocus ? 'autofocus' : '' %>><%== button.value %></button><% }); %></div> ";
 
   // 变量
   var DIALOGS = {};
@@ -1639,9 +1637,10 @@
         cache.__initContent(content);
         // 初始化参数
         cache.__initOptions(options);
-
         // 渲染内容
-        return cache.__render();
+        cache.__render();
+
+        return cache;
       }
 
       // ID
@@ -1745,8 +1744,6 @@
       var context = this;
 
       context.content = string(content) ? content : '';
-
-      return context;
     },
     /**
      * 初始化参数
@@ -1782,8 +1779,6 @@
 
       // 设置主题
       context.className = 'ui-' + options.skin + '-dialog';
-
-      return context;
     },
     /**
      * 初始化事件绑定
@@ -1822,8 +1817,6 @@
       win.on('resize', context.__resize = function() {
         context.reset();
       });
-
-      return context;
     },
     /**
      * 渲染内容
@@ -1841,8 +1834,6 @@
 
       // 设置内容
       context.innerHTML = views.frame(data);
-
-      return context;
     },
     /**
      * 移除销毁弹窗
@@ -1871,8 +1862,6 @@
           }
         }
       }
-
-      return context;
     }
   });
 

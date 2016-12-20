@@ -74,9 +74,10 @@ export default function Dialog(content, options) {
       cache.__initContent(content);
       // 初始化参数
       cache.__initOptions(options);
-
       // 渲染内容
-      return cache.__render();
+      cache.__render();
+
+      return cache;
     }
 
     // ID
@@ -180,8 +181,6 @@ Utils.inherits(Dialog, Popup, {
     var context = this;
 
     context.content = Utils.string(content) ? content : '';
-
-    return context;
   },
   /**
    * 初始化参数
@@ -217,8 +216,6 @@ Utils.inherits(Dialog, Popup, {
 
     // 设置主题
     context.className = 'ui-' + options.skin + '-dialog';
-
-    return context;
   },
   /**
    * 初始化事件绑定
@@ -257,8 +254,6 @@ Utils.inherits(Dialog, Popup, {
     Utils.win.on('resize', context.__resize = function() {
       context.reset();
     });
-
-    return context;
   },
   /**
    * 渲染内容
@@ -276,8 +271,6 @@ Utils.inherits(Dialog, Popup, {
 
     // 设置内容
     context.innerHTML = views.frame(data);
-
-    return context;
   },
   /**
    * 移除销毁弹窗
@@ -306,7 +299,5 @@ Utils.inherits(Dialog, Popup, {
         }
       }
     }
-
-    return context;
   }
 });
