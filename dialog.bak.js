@@ -5,29 +5,44 @@ import * as Utils from '@flexui/utils';
 
 // 变量
 var DIALOGS = {};
-
-// ID
-var DIALOG_ID = Date.now();
-// WAI-ARIA
-var ARIA_LABELLEDBY = 'aria-title:<%= @id %>';
-var ARIA_DESCRIBEDBY = 'aria-content:<%= @id %>';
+var DIALOG_CONTROL_ROLE = 'control';
+var DIALOG_ACTION_ROLE = 'action';
+var DIALOG_ROLE_ATTR = 'data-role';
+var DIALOG_ACTION_ID_ATTR = 'data-action-id';
+var DIALOG_CLASS_HEADER = '{{skin}}-header';
+var DIALOG_CLASS_CONTROLS = '{{skin}}-controls';
+var DIALOG_CLASS_ACTIONS = '{{skin}}-actions';
+// 弹窗标题
+var DIALOG_TITLE =
+  '<div id="{{id}}" class="{{skin}}-title" title={{title}}>{{value}}</div>';
+// 弹窗内容
+var DIALOG_CONTENT =
+  '<div id="{{id}}" class="{{skin}}-content" style="width: {{width}}; height: {{height}};">{{content}}</div>';
 // 弹窗主体框架
 var DIALOG_FRAME =
-  '<div class="ui-dialog-header">' +
-  '  <div id="<%= @labelledby %>" class="ui-dialog-title" title="<%= @title.title %>"><%== @title.value %></div>' +
-  '  <div class="ui-dialog-controls">' +
-  '  <% @controls.forEach(function(control, index) { %>' +
-  '    <a href="javascript:;" class="<%= control.className %>" title="<%= control.title %>" data-role="control" data-action-id="<%= index %>"><%== control.value %></a>' +
-  '  <% }); %>' +
-  '  </div>' +
+  '<div class="' + DIALOG_CLASS_HEADER + '">' +
+  '  {{title}}' +
+  '  <div class="' + DIALOG_CLASS_CONTROLS + '">{{controls}}</div>' +
   '</div>' +
-  '<div id="<%= @describedby %>" class="ui-dialog-content" style="width: <%= @width %>; height: <%= @height %>;"><%== @content %></div>' +
-  '<div class="ui-dialog-buttons">' +
-  '<% @buttons.forEach(function(button, index) { %>' +
-  '  <button type="button" class="<%= button.className %>" title="<%= button.title %>" data-role="action" data-action-id="<%= index %>"><%== button.value %></button>' +
-  '<% }); %>' +
-  '</div>';
-
+  '{{content}}' +
+  '<div class="' + DIALOG_CLASS_ACTIONS + '">{{actions}}</div>';
+// 标题栏操作按钮，例如关闭，最大化，最小化等
+var DIALOG_CONTROL =
+  '<a href="javascript:;" class="{{className}}" title="{{title}}" ' +
+  DIALOG_ROLE_ATTR + '="' + DIALOG_CONTROL_ROLE + '" ' + DIALOG_ACTION_ID_ATTR + '="{{index}}">{{value}}</a>';
+// 弹窗按钮，例如确认，取消等
+var DIALOG_ACTION =
+  '<button type="button" class="{{className}}" title="{{title}}" ' +
+  DIALOG_ROLE_ATTR + '="' + DIALOG_ACTION_ROLE + '" ' + DIALOG_ACTION_ID_ATTR + '="{{index}}">{{value}}</button>';
+// 标题栏操作按钮面板选择器
+var DIALOG_CONTROLS_SELECTOR =
+  '> .' + DIALOG_CLASS_HEADER + ' > .' + DIALOG_CLASS_CONTROLS;
+// 按钮面板
+var DIALOG_ACTIONS_SELECTOR =
+  '> .' + DIALOG_CLASS_ACTIONS;
+// 事件委托选择器
+var DIALOG_DELEGATE_SELECTOR =
+  DIALOG_CONTROLS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + '], ' + DIALOG_ACTIONS_SELECTOR + ' [' + DIALOG_ROLE_ATTR + ']';
 // 默认设置
 var DIALOG_SETTINGS = {
   // 弹窗标识，设置后可以防止重复弹窗
@@ -37,7 +52,7 @@ var DIALOG_SETTINGS = {
   // 标题栏操作按钮 { title, value, which, action }
   controls: [],
   // 弹窗按钮，参数同 controls
-  buttons: [],
+  actions: [],
   // 弹窗内容宽度
   width: 'auto',
   // 弹窗内容高度
@@ -47,10 +62,15 @@ var DIALOG_SETTINGS = {
   // 键盘操作
   keyboard: true,
   // 皮肤
-  skin: 'default',
+  skin: 'ui-dialog',
   // 定位方式
   align: 'bottom left'
 };
+// ID
+var DIALOG_ID = Date.now();
+// WAI-ARIA
+var ARIA_LABELLEDBY = 'aria-title:{{id}}';
+var ARIA_DESCRIBEDBY = 'aria-content:{{id}}';
 
 /**
  * Dialog
@@ -106,17 +126,16 @@ export default function Dialog(content, options) {
   // 调用父类
   Popup.call(context);
 
-  // 初始化模板函数
-  var views = context.views = {
-    frame: Utils.template(DIALOG_FRAME),
-    labelledby: Utils.template(ARIA_LABELLEDBY),
-    describedby: Utils.template(ARIA_DESCRIBEDBY)
-  };
-
   // 设置 WAI-ARIA
   context.__node
-    .attr('aria-labelledby', views.labelledby({ id: id }))
-    .attr('aria-describedby', views.describedby({ id: id }));
+    .attr('aria-labelledby', Utils.template(ARIA_LABELLEDBY, { id: id }))
+    .attr('aria-describedby', Utils.template(ARIA_DESCRIBEDBY, { id: id }));
+
+  // 主题
+  var skin = options.skin;
+
+  // 设置主题
+  context.className = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
 
   // 初始化内容
   context.__initContent(content);
@@ -126,6 +145,30 @@ export default function Dialog(content, options) {
   context.__initEvents();
   // 渲染内容
   context.__render();
+}
+
+/**
+ * 渲染按钮和标题栏操作按钮
+ *
+ * @param {String} format
+ * @param {Array} items
+ * @param {String} skin
+ * @returns {String}
+ */
+function renderActionView(format, items, skin) {
+  var view = '';
+
+  // 遍历配置数组
+  items.forEach(function(item, index) {
+    view += Utils.template(format, {
+      className: Utils.template(item.className, { skin: skin }),
+      title: item.title || item.value || '',
+      value: item.value || '',
+      index: index
+    });
+  });
+
+  return view;
 }
 
 /**
@@ -157,17 +200,17 @@ Utils.doc.on('keydown', function(e) {
     var dialog = active.__node;
     var skin = active.className;
 
-    // 按钮容器
-    var buttons = dialog.find('>.ui-dialog-buttons')[0];
     // 窗体操作框容器
-    var controls = dialog.find('>.ui-dialog-header>.ui-dialog-controls')[0];
+    var controls = dialog.find(Utils.template(DIALOG_CONTROLS_SELECTOR, { skin: skin }))[0];
+    // 按钮容器
+    var actions = dialog.find(Utils.template(DIALOG_ACTIONS_SELECTOR, { skin: skin }))[0];
 
     // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
-    if (which !== 13 || (!buttons.contains(target) && !controls.contains(target))) {
+    if (which !== 13 || (!controls.contains(target) && !actions.contains(target))) {
       var options = active.options;
 
-      // 触发所有键盘绑定动作，优先执行 buttons
-      execAction(options.buttons, e, active);
+      // 触发所有键盘绑定动作，优先执行 actions
+      execAction(options.actions, e, active);
       execAction(options.controls, e, active);
     }
   }
@@ -214,7 +257,7 @@ Utils.inherits(Dialog, Popup, {
     // 格式化标题
     var title = options.title;
     var controls = options.controls;
-    var buttons = options.buttons;
+    var actions = options.actions;
     var skin = options.skin;
 
     // 标题如果是字符串特殊处理
@@ -227,11 +270,8 @@ Utils.inherits(Dialog, Popup, {
     options.width = Utils.addCSSUnit(options.width) || DIALOG_SETTINGS.which;
     options.height = Utils.addCSSUnit(options.height) || DIALOG_SETTINGS.height;
     options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
-    options.buttons = Array.isArray(buttons) ? buttons : DIALOG_SETTINGS.buttons;
+    options.actions = Array.isArray(actions) ? actions : DIALOG_SETTINGS.actions;
     options.skin = skin && Utils.string(skin) ? skin : DIALOG_SETTINGS.skin;
-
-    // 设置主题
-    context.className = 'ui-' + options.skin + '-dialog';
 
     return context;
   },
@@ -243,22 +283,24 @@ Utils.inherits(Dialog, Popup, {
   __initEvents: function() {
     var context = this;
     // 选择器
-    var selector = '>.ui-dialog-buttons>[data-role],>.ui-dialog-header>.ui-dialog-controls>[data-role]';
+    var selector = Utils.template(DIALOG_DELEGATE_SELECTOR, {
+      skin: context.className
+    });
 
     // 绑定事件
     context.__node.on('click', selector, function(e) {
       var current;
       var target = $(this);
       var options = context.options;
-      var role = target.attr('data-role');
-      var id = target.attr('data-action-id');
+      var role = target.attr(DIALOG_ROLE_ATTR);
+      var id = target.attr(DIALOG_ACTION_ID_ATTR);
 
       switch (role) {
-        case 'control':
+        case DIALOG_CONTROL_ROLE:
           current = options.controls[id];
           break;
-        case 'action':
-          current = options.buttons[id];
+        case DIALOG_ACTION_ROLE:
+          current = options.actions[id];
           break;
       }
 
@@ -287,16 +329,64 @@ Utils.inherits(Dialog, Popup, {
     var content = context.content;
     var options = context.options;
     var title = options.title;
-    var views = context.views;
+
+    // 生成按钮
+    var controls = renderActionView(DIALOG_CONTROL, options.controls, skin);
+    var actions = renderActionView(DIALOG_ACTION, options.actions, skin);
 
     // 设置内容
-    context.innerHTML = views.frame($.extend({}, options, {
-      content: context.content,
-      labelledby: views.labelledby({ id: context.id }),
-      describedby: views.describedby({ id: context.id })
-    }));
+    context.innerHTML = Utils.template(DIALOG_FRAME, {
+      skin: skin,
+      title: Utils.template(DIALOG_TITLE, {
+        id: Utils.template(ARIA_LABELLEDBY, { id: id }),
+        skin: skin,
+        title: title.title || title.value || '',
+        value: title.value || ''
+      }),
+      controls: controls,
+      content: Utils.template(DIALOG_CONTENT, {
+        id: Utils.template(ARIA_DESCRIBEDBY, { id: id }),
+        skin: skin,
+        width: options.width,
+        height: options.height,
+        content: content
+      }),
+      actions: actions
+    });
 
     return context;
+  },
+  /**
+   * 重新设置内容和参数，
+   * 此方法位惰性方法，不会立即生效，
+   * 需要重新调用 show/showModal 才能刷新
+   *
+   * @public
+   * @param {String} name
+   * @param {String|Object} value
+   * @returns {Dialog}
+   */
+  set: function(name, value) {
+    var context = this;
+
+    // 参数不合法不做处理
+    if (!name || !Utils.string(name) || !value) {
+      return context;
+    }
+
+    switch (name) {
+      case 'content':
+        // 重新初始化内容
+        context.__initContent(value);
+        break;
+      case 'options':
+        // 重新初始化参数， id 和 skin 禁止覆写
+        context.__initOptions(value, context.options);
+        break;
+    }
+
+    // 重新渲染
+    return context.__render();
   },
   /**
    * 移除销毁弹窗

@@ -72,7 +72,7 @@
   }
 }
 
-.ui-dialog-backdrop {
+.ui-default-dialog-backdrop {
   background: #FFF;
   opacity: .65;
   -ms-filter: alpha(Opacity=65);
@@ -80,11 +80,11 @@
   outline: 0;
 }
 
-:root .ui-dialog-backdrop {
+:root .ui-default-dialog-backdrop {
   filter: none\9;
 }
 
-.ui-dialog {
+.ui-default-dialog {
   background: #000;
   -webkit-overflow-scrolling: touch;
   margin: 0;
@@ -107,7 +107,7 @@
   font: 12px/1.5 Microsoft Yahei, SimHei, tahoma, arial, Hiragino Sans GB, SimSun, sans-serif;
 }
 
-.ui-dialog-show {
+.ui-default-dialog-show {
   -webkit-transition: width .2s ease-out, height .2s ease-out;
   -moz-transition: width .2s ease-out, height .2s ease-out;
   transition: width .2s ease-out, height .2s ease-out;
@@ -115,12 +115,12 @@
   animation-name: bounceIn;
 }
 
-.ui-dialog-close {
+.ui-default-dialog-close {
   -webkit-animation-name: bounceOut;
   animation-name: bounceOut;
 }
 
-.ui-dialog-header {
+.ui-default-dialog .ui-dialog-header {
   height: 36px;
   line-height: 36px;
   background-color: #F8F8F8;
@@ -128,7 +128,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
 
-.ui-dialog-title {
+.ui-default-dialog .ui-dialog-title {
   color: #333;
   font-size: 14px;
   padding: 0 35px 0 9px;
@@ -138,17 +138,17 @@
   text-overflow: ellipsis;
 }
 
-.ui-dialog-title:before {
+.ui-default-dialog .ui-dialog-title:before {
   content: "[√] ";
   color: #B8B8B8;
 }
 
-.ui-dialog-focus .ui-dialog-title:before {
+.ui-default-dialog-focus .ui-dialog-title:before {
   content: "[√] ";
   color: #006400;
 }
 
-.ui-dialog-controls {
+.ui-default-dialog .ui-dialog-controls {
   position: absolute;
   top: 0;
   right: 9px;
@@ -156,13 +156,13 @@
   line-height: 36px;
 }
 
-.ui-dialog-content {
+.ui-default-dialog .ui-dialog-content {
   padding: 9px 20px;
   min-width: 320px;
   min-height: 70px;
 }
 
-.ui-dialog-actions {
+.ui-default-dialog .ui-dialog-buttons {
   padding: 9px;
   text-align: right;
 }

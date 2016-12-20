@@ -88,3 +88,14 @@ body {
 label input {
   vertical-align: text-top;
 }
+
+.ui-input {
+  width: 220px;
+  height: 30px;
+  line-height: 30px;
+  outline: none;
+  padding: 0 5px;
+  border: 1px solid #ccc;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .1) inset;
+  color: #333;
+}

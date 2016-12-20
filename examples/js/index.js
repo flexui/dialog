@@ -19,12 +19,12 @@ function create(id, title, content, options) {
       title: '关闭',
       value: '×',
       which: 27,
-      className: '{{skin}}-control-close',
+      className: 'ui-dialog-control-close',
       action: function() {
         this.close();
       }
     }],
-    actions: options.actions
+    buttons: options.buttons
   });
 
   dialog.on('closed', function() {
@@ -37,8 +37,8 @@ function create(id, title, content, options) {
 }
 
 $('#button').on('click', function() {
-  var popup = create(unique.checked ? 'confirm' : null, '弹出消息', 'hello, world', {
-    actions: [
+  var popup = create(unique.checked ? 'confirm' : null, '弹出消息', '<input class="ui-input" type="text" value="hello, world">', {
+    buttons: [
       {
         which: 13,
         value: '确认',
@@ -48,7 +48,7 @@ $('#button').on('click', function() {
 
           dialogs.push(create('alert', '提示', '你执行了确认操作！', {
             fixed: true,
-            actions: [{
+            buttons: [{
               which: 13,
               value: '确认',
               className: 'ui-button',
@@ -68,7 +68,7 @@ $('#button').on('click', function() {
 
           dialogs.push(create('alert', '提示', '你执行了取消操作！', {
             fixed: true,
-            actions: [{
+            buttons: [{
               which: 13,
               value: '确认',
               className: 'ui-button',
