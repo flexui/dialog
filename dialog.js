@@ -159,9 +159,6 @@ Utils.doc.on('keydown', function(e) {
   }
 });
 
-// 父类移除方法缓存
-var POPUP_REMOVE = Popup.prototype.remove;
-
 // 原型方法
 Utils.inherits(Dialog, Popup, {
   /**
@@ -171,6 +168,26 @@ Utils.inherits(Dialog, Popup, {
    * @readonly
    */
   constructor: Dialog,
+  /**
+   * 显示浮层（私有），覆写父类方法
+   *
+   * @private
+   * @param {HTMLElement}  指定位置（可选）
+   */
+  __show: function(anchor) {
+    var context = this;
+
+    // 已销毁
+    if (context.destroyed) {
+      return context;
+    }
+
+    // 设置主题
+    context.className = 'ui-' + context.options.skin + '-dialog';
+
+    // 调用父类方法
+    return Popup.prototype.__show.call(context, anchor);
+  },
   /**
    * 初始化参数
    *
@@ -213,9 +230,6 @@ Utils.inherits(Dialog, Popup, {
     options.height = Utils.addCSSUnit(options.height) || DIALOG_SETTINGS.height;
     options.buttons = Array.isArray(buttons) ? buttons : DIALOG_SETTINGS.buttons;
     options.controls = Array.isArray(controls) ? controls : DIALOG_SETTINGS.controls;
-
-    // 设置主题
-    context.className = 'ui-' + options.skin + '-dialog';
   },
   /**
    * 初始化事件绑定
@@ -286,7 +300,7 @@ Utils.inherits(Dialog, Popup, {
       var resize = context.__resize;
 
       // 调用父类方法
-      POPUP_REMOVE.call(context);
+      Popup.prototype.remove.call(context);
 
       // 删除缓存
       if (context.destroyed) {
