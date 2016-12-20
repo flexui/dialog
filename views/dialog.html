@@ -1,7 +1,10 @@
+<!-- 弹窗标题栏 -->
 <div class="ui-dialog-header">
+  <!-- 弹窗标题 -->
   <div id="<%= @labelledby %>"
     class="ui-dialog-title"
     title="<%= @title.title %>"><%== @title.value %></div>
+  <!-- 弹窗控制栏 -->
   <div class="ui-dialog-controls"><% @controls.forEach(function(control, index) { %><a
     href="javascript:;"
     class="<%= control.className %>"
@@ -10,9 +13,11 @@
     data-action-id="<%= index %>"
     <%= control.autofocus ? 'autofocus' : '' %>><%== control.value %></a><% }); %></div>
 </div>
+<!-- 弹窗内容 -->
 <div id="<%= @describedby %>"
   class="ui-dialog-content"
   style="width: <%= @width %>; height: <%= @height %>;"><%== @content %></div>
+<!-- 弹窗按钮 -->
 <div class="ui-dialog-buttons"><% @buttons.forEach(function(button, index) { %><button
   type="button"
   class="<%= button.className %>"
