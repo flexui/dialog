@@ -521,11 +521,11 @@
     anchor: null,
     // 遮罩节点
     node: $('<div tabindex="0"></div>').css({
-      position: 'fixed',
       top: 0,
       left: 0,
       width: '100%',
-      height: '100%'
+      height: '100%',
+      position: 'fixed'
     }),
     /**
      * 设置浮层层级
@@ -605,15 +605,16 @@
   };
 
   // 焦点锁定层
-  var TAB_LOCK = {
+  var FOCUS_SHIM = {
     // 锁定层
     node: $('<div tabindex="0"></div>').css({
-      position: 'fixed',
       top: 0,
       left: 0,
       width: 0,
       height: 0,
-      opacity: 0
+      zIndex: -1,
+      opacity: 0,
+      position: 'fixed'
     }),
     /**
      * 显示焦点锁定层
@@ -622,7 +623,7 @@
      */
     show: function(anchor) {
       if (BACKDROP.anchor) {
-        TAB_LOCK.node.insertAfter(anchor.node);
+        FOCUS_SHIM.node.insertAfter(anchor.node);
       }
     },
     /**
@@ -630,7 +631,7 @@
      */
     hide: function() {
       if (!BACKDROP.anchor) {
-        TAB_LOCK.node.remove();
+        FOCUS_SHIM.node.remove();
       }
     }
   };
@@ -679,7 +680,7 @@
             anchor.focus();
           }
           break;
-        case TAB_LOCK.node[0]:
+        case FOCUS_SHIM.node[0]:
           anchor.focus();
           break;
       }
@@ -879,7 +880,7 @@
           }
 
           // 焦点锁定层
-          TAB_LOCK[method](context);
+          FOCUS_SHIM[method](context);
           break;
         case 'z-index':
           if (context.modal) {
@@ -1074,10 +1075,10 @@
     // 设置初始样式
     context.__node
       .css({
-        display: 'none',
-        position: 'absolute',
         top: 0,
-        left: 0
+        left: 0,
+        display: 'none',
+        position: 'absolute'
       });
   }
 
