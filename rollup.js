@@ -20,7 +20,9 @@ rollup.rollup({
         conservativeCollapse: false,
         removeEmptyAttributes: true,
         collapseBooleanAttributes: true,
-        ignoreCustomFragments: [/<%={0,2}.+?%>/]
+        customAttrCollapse: /<%={1,2}.+?%>/,
+        ignoreCustomFragments: [/<%={0,2}.+?%>/],
+        customAttrSurround: [[/<%[^=].*?%>/, /<%[^=].*?%>/]]
       }
     }),
     npm({
