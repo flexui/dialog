@@ -13,13 +13,14 @@ rollup.rollup({
     html({
       include: '**/*.html',
       htmlMinifierOptions: {
-        minifyJS: false,
-        minifyCSS: false,
         removeComments: true,
+        useShortDoctype: true,
         collapseWhitespace: true,
-        conservativeCollapse: true,
-        removeEmptyAttributes: false,
-        collapseBooleanAttributes: true
+        trimCustomFragments: true,
+        conservativeCollapse: false,
+        removeEmptyAttributes: true,
+        collapseBooleanAttributes: true,
+        ignoreCustomFragments: [/<%={0,2}.+?%>/]
       }
     }),
     npm({
