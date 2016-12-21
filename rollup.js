@@ -13,12 +13,12 @@ rollup.rollup({
     html({
       include: '**/*.html',
       htmlMinifierOptions: {
-        minifyJS: true,
-        minifyCSS: true,
+        minifyJS: false,
+        minifyCSS: false,
         removeComments: true,
         collapseWhitespace: true,
         conservativeCollapse: true,
-        removeEmptyAttributes: true,
+        removeEmptyAttributes: false,
         collapseBooleanAttributes: true
       }
     }),
