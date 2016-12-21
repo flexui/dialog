@@ -1185,10 +1185,6 @@
       // 弹窗添加到文档树
       popup.appendTo(document.body);
 
-      if (context.modal) {
-        popup.addClass(context.className + POPUP_CLASS_MODAL);
-      }
-
       // 智能遮罩层显示
       context.__backdrop('show');
 
