@@ -14,7 +14,7 @@
       title="<%= control.title || control.value %>"
       data-role="control"
       data-action-id="<%= index %>"
-      <%= control.autofocus ? 'autofocus' : '' %>>
+      <%= control.autofocus ? ' autofocus' : '' %>>
       <%== control.value %>
     </a>
     <% }); %>
@@ -33,7 +33,7 @@
     class="<%= button.className %>"
     title="<%= button.title || button.value %>"
     data-role="action" data-action-id="<%= index %>"
-    <%= button.autofocus ? 'autofocus' : '' %>>
+    <%= button.autofocus ? ' autofocus' : '' %>>
     <%== button.value %>
   </button>
   <% }); %>
