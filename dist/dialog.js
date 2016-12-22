@@ -96,7 +96,7 @@
       return false;
     }
 
-    return NATIVE_RE.test(fn.toString());
+    return NATIVE_RE.test(FPToString.call(value));
   }
 
   // HTML 转码映射表
