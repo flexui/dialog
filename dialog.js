@@ -6,6 +6,16 @@ import DIALOG_FRAME from './views/dialog.html';
 
 // 变量
 var DIALOGS = {};
+// 弹窗标题栏
+var DIALOG_PANEL_HEADER = '>.ui-dialog-header';
+// 弹窗面板选择器映射
+var DIALOG_PANELS = {
+  header: DIALOG_PANEL_HEADER,
+  title: DIALOG_PANEL_HEADER + '>.ui-dialog-title',
+  controls: DIALOG_PANEL_HEADER + '>.ui-dialog-controls',
+  content: '>.ui-dialog-content',
+  buttons: '>.ui-dialog-buttons'
+}
 
 // ID
 var DIALOG_ID = Date.now();
@@ -140,13 +150,12 @@ Utils.doc.on('keydown', function(e) {
   if (active instanceof Dialog && !active.destroyed && active.options.keyboard) {
     var which = e.which;
     var target = e.target;
-    var dialog = active.__node;
     var skin = active.className;
 
     // 按钮容器
-    var buttons = dialog.find('>.ui-dialog-buttons')[0];
+    var buttons = active.panel('buttons')[0];
     // 窗体操作框容器
-    var controls = dialog.find('>.ui-dialog-header>.ui-dialog-controls')[0];
+    var controls = active.panel('controls')[0];
 
     // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
     if (which !== 13 || (!buttons.contains(target) && !controls.contains(target))) {
@@ -239,7 +248,7 @@ Utils.inherits(Dialog, Popup, {
   __initEvents: function() {
     var context = this;
     // 选择器
-    var selector = '>.ui-dialog-buttons>[data-role],>.ui-dialog-header>.ui-dialog-controls>[data-role]';
+    var selector = DIALOG_PANELS.buttons + '>[data-role],' + DIALOG_PANELS.controls + '>[data-role]';
 
     // 绑定事件
     context.__node.on('click', selector, function(e) {
@@ -285,6 +294,26 @@ Utils.inherits(Dialog, Popup, {
 
     // 设置内容
     context.innerHTML = views.frame(data);
+  },
+  /**
+   * 获取弹窗各个面板
+   *
+   * @public
+   * @param {String} panel
+   * @returns{jQuery|Undefined}
+   */
+  panel: function(panel) {
+    var dialog = this.__node;
+
+    // 获取弹窗
+    if (panel === 'dialog') {
+      return dialog;
+    }
+
+    // 获取其它面板
+    if (DIALOG_PANELS.hasOwnProperty(panel)) {
+      return dialog.find(DIALOG_PANELS[panel]);
+    }
   },
   /**
    * 移除销毁弹窗
