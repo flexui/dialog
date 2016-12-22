@@ -1718,9 +1718,9 @@
       var skin = active.className;
 
       // 按钮容器
-      var buttons = active.panel('buttons')[0];
+      var buttons = active.panel('buttons');
       // 窗体操作框容器
-      var controls = active.panel('controls')[0];
+      var controls = active.panel('controls');
 
       // 当焦点在按钮上时，enter 键会触发 click 事件，如果按钮绑定了 enter 键，会触发两次回调
       if (which !== 13 || (!buttons.contains(target) && !controls.contains(target))) {
@@ -1865,19 +1865,19 @@
      *
      * @public
      * @param {String} panel
-     * @returns{jQuery|Undefined}
+     * @returns{HTMLElement|Undefined}
      */
     panel: function(panel) {
       var dialog = this.__node;
 
       // 获取弹窗
       if (panel === 'dialog') {
-        return dialog;
+        return dialog[0];
       }
 
       // 获取其它面板
       if (DIALOG_PANELS.hasOwnProperty(panel)) {
-        return dialog.find(DIALOG_PANELS[panel]);
+        return dialog.find(DIALOG_PANELS[panel])[0];
       }
     },
     /**
