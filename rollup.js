@@ -9,6 +9,7 @@ const npm = require('rollup-plugin-node-resolve');
 rollup.rollup({
   legacy: true,
   entry: 'index.js',
+  external: ['jquery'],
   plugins: [
     html({
       include: '**/*.html',
@@ -33,11 +34,6 @@ rollup.rollup({
       // (needs to be converted from CommonJS to ES6
       // – see https://github.com/rollup/rollup-plugin-commonjs
       main: true, // Default: true
-      // if there's something your bundle requires that you DON'T
-      // want to include, add it to 'skip'. Local and relative imports
-      // can be skipped by giving the full filepath. E.g.,
-      // `path.resolve('src/relative-dependency.js')`
-      skip: ['jquery'], // Default: []
       // some package.json files have a `browser` field which
       // specifies alternative files to load for people bundling
       // for the browser. If that's you, use this option, otherwise
@@ -51,45 +47,41 @@ rollup.rollup({
     })
   ]
 }).then(function(bundle) {
-  let stat;
-  const map = 'dialog.js.map';
-  const src = 'dist/dialog.js';
-  const min = 'dist/dialog.min.js';
+  fs.stat('dist', function(error) {
+    if (error) {
+      fs.mkdirSync('dist');
+    }
 
-  try {
-    stat = fs.statSync('dist')
-  } catch (e) {
-    // no such file or directory
-  }
+    const src = 'dist/dialog.js';
+    const min = 'dist/dialog.min.js';
+    const map = 'dialog.js.map';
 
-  if (!stat) {
-    fs.mkdirSync('dist');
-  }
+    let result = bundle.generate({
+      format: 'umd',
+      indent: true,
+      useStrict: true,
+      moduleId: 'dialog',
+      moduleName: 'FlexUI',
+      globals: { jquery: 'jQuery' }
+    });
 
-  let result = bundle.generate({
-    format: 'umd',
-    indent: true,
-    useStrict: true,
-    moduleId: 'dialog',
-    moduleName: 'FlexUI',
-    globals: { jquery: 'jQuery' }
+    fs.writeFileSync(src, result.code);
+    console.log(`  Build ${ src } success!`);
+
+    result = uglify.minify({
+      'dialog.js': result.code
+    }, {
+      compress: { ie8: true },
+      mangle: { ie8: true },
+      output: { ie8: true },
+      sourceMap: { url: map }
+    });
+
+    fs.writeFileSync(min, result.code);
+    console.log(`  Build ${ min } success!`);
+    fs.writeFileSync(src + '.map', result.map);
+    console.log(`  Build ${ src + '.map' } success!`);
   });
-
-  fs.writeFileSync(src, result.code);
-  console.log(`  Build ${ src } success!`);
-
-  result = uglify.minify(result.code, {
-    fromString: true,
-    compress: { screw_ie8: false },
-    mangle: { screw_ie8: false },
-    output: { screw_ie8: false },
-    outSourceMap: map
-  });
-
-  fs.writeFileSync(min, result.code);
-  console.log(`  Build ${ min } success!`);
-  fs.writeFileSync(src + '.map', result.map.replace('"sources":["?"]', '"sources":["dialog.js"]'));
-  console.log(`  Build ${ src + '.map' } success!`);
 }).catch(function(error) {
   console.error(error);
 });
